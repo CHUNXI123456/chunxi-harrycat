@@ -1,0 +1,944 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="preload" href="/_next/static/media/0c89a48fa5027cee-s.p.0rd3rjvnnhw7n.woff2" as="font" crossorigin="" type="font/woff2"/><link rel="preload" href="/_next/static/media/feb57b2dc8f29018-s.p.13c9k6c3vhklu.woff2" as="font" crossorigin="" type="font/woff2"/><link rel="stylesheet" href="/_next/static/chunks/0_xd8-dk3zeg_.css" data-precedence="next"/><link rel="stylesheet" href="/_next/static/chunks/0f2nf4kpns9s9.css" data-precedence="next"/><meta name="next-size-adjust" content=""/><title>CHUNXI.fun</title><meta name="description" content="CHUNXI科技部署工具 - 蛋仔CHUNXI科技团队 · 春熙医疗团队开发"/><link rel="icon" href="/favicon.ico?favicon.0x3dzn~oxb6tn.ico" sizes="256x256" type="image/x-icon"/><style id="chunxi-portal-css">
+  :root {
+    --chunxi-primary: #0284c7;
+    --chunxi-secondary: #7c3aed;
+    --chunxi-bg: rgba(240,249,255,0.78);
+  }
+  #chunxi-login-overlay, #chunxi-settings-overlay, #chunxi-editor-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--chunxi-bg); backdrop-filter: blur(16px);
+    padding: 16px; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  }
+  .chunxi-card {
+    width: 100%; max-width: 420px;
+    background: rgba(255,255,255,0.92); border: 1px solid rgba(186,230,253,0.85);
+    border-radius: 28px; padding: 28px; box-shadow: 0 28px 90px rgba(14,116,144,0.16);
+    position: relative; overflow: hidden;
+  }
+  .chunxi-card::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+    background: radial-gradient(circle at 18% 16%, rgba(34,211,238,0.32), transparent 34%),
+                radial-gradient(circle at 84% 14%, rgba(216,180,254,0.32), transparent 34%),
+                radial-gradient(circle at 50% 96%, rgba(186,230,253,0.56), transparent 40%),
+                linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(219,242,255,0.78) 46%, rgba(226,232,255,0.8) 100%);
+  }
+  .chunxi-inner { position: relative; z-index: 1; }
+  .chunxi-title { text-align: center; font-size: 24px; font-weight: 900; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px; }
+  .chunxi-title span { background: linear-gradient(90deg, #0284c7, #7c3aed); -webkit-background-clip: text; color: transparent; }
+  .chunxi-sub { text-align: center; font-size: 13px; color: #475569; margin-bottom: 22px; }
+  .chunxi-group { margin-bottom: 14px; }
+  .chunxi-group label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .chunxi-group input, .chunxi-group textarea, .chunxi-group select {
+    width: 100%; min-height: 46px; border-radius: 14px; border: 1px solid #bae6fd;
+    background: rgba(255,255,255,0.85); padding: 10px 16px; font-size: 15px; color: #0f172a;
+    outline: none; transition: all .2s; font-family: inherit;
+  }
+  .chunxi-group input:focus, .chunxi-group textarea:focus, .chunxi-group select:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,0.15); }
+  .chunxi-btn {
+    width: 100%; height: 46px; border-radius: 16px; border: none; margin-top: 8px;
+    background: linear-gradient(135deg, #0284c7, #7c3aed); color: #fff; font-size: 15px; font-weight: 700;
+    cursor: pointer; box-shadow: 0 10px 28px rgba(14,116,144,0.28); transition: all .2s;
+  }
+  .chunxi-btn:hover { transform: translateY(-1px); opacity: 0.95; }
+  .chunxi-btn.secondary { background: rgba(255,255,255,0.85); color: #475569; border: 1px solid #bae6fd; box-shadow: none; }
+  .chunxi-switch { text-align: center; margin-top: 16px; font-size: 13px; color: #475569; }
+  .chunxi-switch a { color: #0284c7; font-weight: 700; cursor: pointer; text-decoration: none; }
+  .chunxi-tip { text-align: center; margin-top: 10px; min-height: 20px; font-size: 13px; color: #ef4444; }
+  body.chunxi-locked { overflow: hidden; }
+  body.chunxi-locked > .min-h-screen { display: none !important; }
+
+  #chunxi-team-badge {
+    display: none; align-items: center; gap: 6px;
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    font-size: 12px; font-weight: 600; color: #0369a1; white-space: nowrap;
+    background: rgba(255,255,255,0.72); border: 1px solid rgba(186,230,253,0.8);
+    border-radius: 999px; padding: 4px 10px; backdrop-filter: blur(8px);
+  }
+  #chunxi-team-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; }
+
+  #chunxi-settings-btn, #chunxi-logout-btn {
+    display: none; align-items: center; justify-content: center;
+    height: 36px; border-radius: 12px; border: 1px solid #bae6fd; background: rgba(255,255,255,0.75);
+    color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0 14px;
+  }
+  #chunxi-settings-btn { display: inline-flex; }
+  #chunxi-lang-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 36px; border-radius: 12px; border: 1px solid #bae6fd; background: rgba(255,255,255,0.75);
+    color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0 14px;
+  }
+
+  .chunxi-section { padding: 30px 0 20px; }
+  .chunxi-section h2 { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .chunxi-empty {
+    padding: 40px; text-align: center; color: #64748b; font-size: 14px;
+    border: 1px dashed #bae6fd; border-radius: 20px; background: rgba(255,255,255,0.5);
+  }
+  .chunxi-template-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px;
+  }
+  .chunxi-template-card {
+    display: flex; flex-direction: column; gap: 10px;
+    border-radius: 22px; border: 1px solid rgba(186,230,253,0.85); background: rgba(255,255,255,0.82);
+    padding: 18px; box-shadow: 0 14px 50px rgba(14,116,144,0.12); backdrop-filter: blur(12px);
+    transition: transform .2s; position: relative; overflow: hidden;
+  }
+  .chunxi-template-card:hover { transform: translateY(-3px); }
+  .chunxi-template-card .status {
+    position: absolute; top: 12px; right: 12px;
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; color: #15803d;
+    background: rgba(220,252,231,0.9); border-radius: 999px; padding: 3px 8px;
+  }
+  .chunxi-template-card .status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .chunxi-template-card h3 { font-size: 17px; font-weight: 800; color: #0f172a; padding-right: 50px; }
+  .chunxi-template-card p { font-size: 13px; color: #475569; line-height: 1.5; }
+  .chunxi-template-card .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chunxi-template-card .tag { font-size: 11px; font-weight: 600; color: #0369a1; background: rgba(224,242,254,0.8); border-radius: 999px; padding: 3px 8px; }
+  .chunxi-template-card .actions { display: flex; gap: 8px; margin-top: auto; }
+  .chunxi-template-card .actions button {
+    flex: 1; height: 38px; border-radius: 12px; border: none; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .chunxi-template-card .actions .btn-primary { background: linear-gradient(135deg, #0284c7, #7c3aed); color: #fff; }
+  .chunxi-template-card .actions .btn-secondary { background: rgba(255,255,255,0.85); color: #475569; border: 1px solid #bae6fd; }
+
+  .chunxi-setting-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 0; border-bottom: 1px solid rgba(186,230,253,0.5);
+  }
+  .chunxi-setting-row:last-child { border-bottom: none; }
+  .chunxi-setting-row .label { font-size: 15px; font-weight: 600; color: #0f172a; }
+  .chunxi-setting-row .value { font-size: 13px; color: #475569; }
+  .chunxi-setting-row .tag-readonly {
+    font-family: monospace; font-size: 13px; color: #0369a1; background: rgba(224,242,254,0.8);
+    border-radius: 8px; padding: 6px 10px; user-select: all;
+  }
+  .chunxi-view-btns { display: flex; gap: 8px; }
+  .chunxi-view-btns button {
+    height: 34px; border-radius: 10px; border: 1px solid #bae6fd; background: rgba(255,255,255,0.7);
+    color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0 12px;
+  }
+  .chunxi-view-btns button.active { background: linear-gradient(135deg, #0284c7, #7c3aed); color: #fff; border-color: transparent; }
+
+  body.view-mobile main { max-width: 414px !important; }
+  body.view-tablet main { max-width: 768px !important; }
+  body.view-desktop main { max-width: 1200px !important; }
+  body.view-mobile, body.view-tablet, body.view-desktop { justify-content: center; display: flex; }
+  body.view-mobile .min-h-screen, body.view-tablet .min-h-screen, body.view-desktop .min-h-screen { width: 100%; }
+
+  .chunxi-close {
+    position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid #bae6fd; background: rgba(255,255,255,0.7); color: #475569; font-size: 20px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;
+  }
+  #chunxi-editor-overlay .chunxi-card { max-width: 720px; }
+  .chunxi-preview-box {
+    border: 1px solid #bae6fd; border-radius: 16px; background: rgba(255,255,255,0.6);
+    padding: 16px; margin-top: 14px; min-height: 120px;
+  }
+
+  .chunxi-deploy-page { padding: 40px 20px; max-width: 900px; margin: 0 auto; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; }
+  .chunxi-deploy-page .chunxi-card { max-width: 760px; margin: 0 auto; }
+  .chunxi-deploy-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .chunxi-deploy-tabs button { flex: 1; height: 40px; border-radius: 12px; border: 1px solid #bae6fd; background: rgba(255,255,255,0.7); color: #475569; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .chunxi-deploy-tabs button.active { background: linear-gradient(135deg, #0284c7, #7c3aed); color: #fff; border-color: transparent; }
+  .chunxi-deploy-area { display: none; }
+  .chunxi-deploy-area.active { display: block; }
+  .chunxi-codebox { width: 100%; min-height: 200px; border-radius: 14px; border: 1px solid #bae6fd; background: rgba(255,255,255,0.85); padding: 12px; font-size: 13px; color: #0f172a; outline: none; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  @media (max-width: 768px) {
+    #chunxi-team-badge { position: static; transform: none; margin-top: 8px; }
+    .chunxi-card { padding: 22px 18px; }
+    .chunxi-template-grid { grid-template-columns: 1fr; }
+    nav > .mx-auto.flex.h-16 {
+      flex-direction: column;
+      height: auto;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      gap: 8px;
+    }
+    nav > .mx-auto.flex.h-16 > div {
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    nav > .mx-auto.flex.h-16 [class*="md:flex"] { display: flex !important; }
+    nav .text-xl.font-black { font-size: 18px; }
+    nav svg.h-\[52px\] { width: 40px; height: 40px; }
+  }
+</style>
+</head><body class="space_grotesk_2ebaa799-module__im0rWa__variable noto_sans_sc_b3aa23d7-module__9O3vvW__variable"><div hidden=""><!--$--><!--/$--></div><div class="min-h-screen"><nav class="sticky top-0 z-30 border-b border-sky-200/60 bg-sky-50/82 shadow-[0_10px_34px_rgba(14,116,144,0.10)] backdrop-blur-xl"><div class="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6 lg:px-8"><div class="flex min-w-0 items-center gap-4 md:gap-8"><a class="group flex shrink-0 items-center transition-transform hover:scale-105" href="/"><svg class="h-[52px] w-[52px] drop-shadow-[0_10px_22px_rgba(99,102,241,0.22)]" viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="logo-bg" x1="12" x2="84" y1="10" y2="86"><stop stop-color="#101348"></stop><stop offset="0.55" stop-color="#172D67"></stop><stop offset="1" stop-color="#155E75"></stop></linearGradient><linearGradient id="logo-window" x1="32" x2="66" y1="36" y2="72"><stop stop-color="#FFFFFF"></stop><stop offset="1" stop-color="#EAF7FF"></stop></linearGradient><linearGradient id="logo-header" x1="32" x2="68" y1="34" y2="44"><stop stop-color="#60A5FA"></stop><stop offset="1" stop-color="#8B5CF6"></stop></linearGradient><linearGradient id="logo-orbit" x1="8" x2="86" y1="72" y2="22"><stop stop-color="#22D3EE"></stop><stop offset="1" stop-color="#C084FC"></stop></linearGradient></defs><rect x="5" y="5" width="86" height="86" rx="26" fill="url(#logo-bg)"></rect><path d="M13 67C32 45 60 36 84 29" fill="none" stroke="url(#logo-orbit)" stroke-linecap="round" stroke-width="4" opacity="0.9"></path><path d="M17 73C35 59 61 49 86 43" fill="none" stroke="#A78BFA" stroke-linecap="round" stroke-width="3" opacity="0.55"></path><rect x="15" y="22" width="25" height="14" rx="6" fill="#F8FAFC" opacity="0.96"></rect><path d="M20 29h7M23.5 25.5v7" stroke="#312E81" stroke-linecap="round" stroke-width="2"></path><circle cx="32" cy="27" r="2" fill="#86EFAC"></circle><circle cx="36" cy="31" r="2" fill="#FB7185"></circle><rect x="61" y="20" width="20" height="20" rx="6" fill="#24195F" stroke="#C084FC" stroke-width="2"></rect><rect x="65" y="24" width="5" height="5" rx="1.2" fill="#F472B6"></rect><rect x="72" y="24" width="5" height="5" rx="1.2" fill="#86EFAC"></rect><rect x="65" y="31" width="5" height="5" rx="1.2" fill="#38BDF8"></rect><rect x="72" y="31" width="5" height="5" rx="1.2" fill="#FBBF24"></rect><rect x="17" y="70" width="25" height="15" rx="5" fill="#F8FAFC" opacity="0.96"></rect><rect x="21" y="75" width="9" height="6" rx="1.5" fill="#38BDF8"></rect><path d="M33 76h5M33 80h4" stroke="#A5B4FC" stroke-linecap="round" stroke-width="1.8"></path><rect x="63" y="68" width="22" height="15" rx="5" fill="#20174F" stroke="#8B5CF6" stroke-width="1.8"></rect><path d="M68 78a5 5 0 1 0 5-5v5z" fill="#38BDF8"></path><path d="M73 73a5 5 0 0 1 4.5 2.8L73 78z" fill="#FB7185"></path><path d="M78 73h4M78 78h3" stroke="#A5B4FC" stroke-linecap="round" stroke-width="1.5"></path><rect x="31" y="35" width="36" height="39" rx="11" fill="url(#logo-window)"></rect><path d="M31 45a10 10 0 0 1 10-10h16a10 10 0 0 1 10 10v5H31z" fill="url(#logo-header)"></path><circle cx="39" cy="44" r="2.7" fill="#F472B6"></circle><circle cx="48" cy="44" r="2.7" fill="#FBBF24"></circle><circle cx="57" cy="44" r="2.7" fill="#86EFAC"></circle><path d="M27 57q-8 6-6 13" fill="none" stroke="#E0F2FE" stroke-linecap="round" stroke-width="5"></path><path d="M70 56q8-1 10-7" fill="none" stroke="#E0F2FE" stroke-linecap="round" stroke-width="5"></path><path d="M38 58q3-4 7 0" fill="none" stroke="#111827" stroke-linecap="round" stroke-width="3"></path><path d="M53 58q3-4 7 0" fill="none" stroke="#111827" stroke-linecap="round" stroke-width="3"></path><path d="M45 66q4 4 9 0" fill="#FB7185" stroke="#831843" stroke-linecap="round" stroke-width="1.6"></path><circle cx="18" cy="47" r="3" fill="#A78BFA"></circle><circle cx="78" cy="56" r="2.4" fill="#22D3EE"></circle><path d="M52 16l2.2 4.5 4.8 1.3-4.8 1.3L52 27.5l-2.2-4.4-4.8-1.3 4.8-1.3z" fill="#BAE6FD"></path><path d="M76 48l1.3 2.6 2.7.7-2.7.8-1.3 2.5-1.3-2.5-2.7-.8 2.7-.7z" fill="#F0ABFC"></path></svg><span class="ml-3 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">CHUNXI.fun</span></a><div class="hidden items-center space-x-6 md:flex"><a class="text-sm font-semibold text-slate-600 transition-colors hover:text-sky-800" href="#chunxi-template-market" data-i18n="Deploy Tool" data-zh="部署工具">部署工具</a></div></div><div class="flex items-center gap-3"><a class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 bg-white/75 text-sm font-semibold text-sky-800 shadow-sm transition hover:border-sky-300 hover:bg-white sm:w-auto sm:px-3" title="手动部署" href="javascript:chunxiOpenDeploy()" onclick="chunxiOpenDeploy();return false;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-code-corner h-4 w-4 sm:mr-1.5" aria-hidden="true"><path d="M4 12.15V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2h-3.35"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="m5 16-3 3 3 3"></path><path d="m9 22 3-3-3-3"></path></svg><span class="hidden sm:inline">手动部署</span></a><a class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 bg-white/75 text-sm font-semibold text-sky-800 shadow-sm transition hover:border-sky-300 hover:bg-white sm:w-auto sm:px-3" title="API 文档" href="javascript:chunxiOpenApiDocs()" onclick="chunxiOpenApiDocs();return false;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles h-4 w-4 sm:mr-1.5" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg><span class="hidden sm:inline">API 文档</span></a><button type="button" disabled="" title="加载中…" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-semibold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-3 border-sky-200 bg-white/75 text-slate-600 hover:border-sky-300 hover:bg-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield h-4 w-4 sm:mr-1.5" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg><span class="hidden sm:inline">加载中…</span></button><div class="mx-2 hidden h-5 w-px bg-sky-200 md:block"></div><div class="hidden items-center gap-1 rounded-lg bg-white/70 p-1 ring-1 ring-sky-200 md:flex"><button type="button" class="rounded-md px-2.5 py-1 text-xs transition bg-slate-900/80 font-semibold text-white shadow-sm" aria-pressed="true" title="切换到中文">简</button><button type="button" class="rounded-md px-2.5 py-1 text-xs transition font-medium text-slate-500 hover:bg-sky-50 hover:text-slate-800" aria-pressed="false" title="Switch to English">EN</button></div></div></div></nav><main class="mx-auto w-full max-w-[1200px] px-4 pb-10 pt-8 sm:px-6 lg:px-8"><div class="relative space-y-12 pb-12"><div class="pointer-events-none fixed bottom-0 top-20 z-0 hidden w-[calc((100vw-1200px)/2-1rem)] overflow-hidden [mask-image:linear-gradient(180deg,transparent,black_10%,black_88%,transparent)] 2xl:block left-0"><div class="absolute w-[760px] opacity-45 right-0 -translate-x-1/4" style="top:8%"><div style="--duration:54s"><div class="hero-barrage-track "><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我做一个打砖块小游戏</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这份日报做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个手机端抽签页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个 AI 对话型登录页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">用 HTML 做产品定价页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个课堂计分板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把表格变成可视化看板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个活动报名页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我做一个打砖块小游戏</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这份日报做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个手机端抽签页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个 AI 对话型登录页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">用 HTML 做产品定价页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个课堂计分板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把表格变成可视化看板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个活动报名页</span></div></div></div><div class="absolute w-[760px] opacity-[0.38] right-0 -translate-x-1/2" style="top:29%"><div style="--duration:62s"><div class="hero-barrage-track hero-barrage-reverse"><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我部署到 htmlcode.fun</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成后直接给我链接</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">顺手写个项目简介</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">代码不要变，样式升级</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个可分享的单页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这段文案做成海报页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">加一个倒计时组件</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个客户演示 Demo</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我部署到 htmlcode.fun</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成后直接给我链接</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">顺手写个项目简介</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">代码不要变，样式升级</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个可分享的单页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这段文案做成海报页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">加一个倒计时组件</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个客户演示 Demo</span></div></div></div><div class="absolute w-[760px] opacity-40 right-0 -translate-x-1/4" style="top:51%"><div style="--duration:68s"><div class="hero-barrage-track "><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个 SaaS 状态页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把需求整理成 HTML 工具</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个 API 测试页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个二维码落地页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我上线到应用商城</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个作品集页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把 Markdown 转成漂亮网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个每日待办板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个 SaaS 状态页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把需求整理成 HTML 工具</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个 API 测试页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个二维码落地页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我上线到应用商城</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个作品集页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把 Markdown 转成漂亮网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个每日待办板</span></div></div></div><div class="absolute w-[760px] opacity-[0.34] right-0 -translate-x-1/2" style="top:74%"><div style="--duration:76s"><div class="hero-barrage-track hero-barrage-reverse"><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个生日祝福网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">帮我生成小游戏排行榜</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个会议议程页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">把报价单做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个品牌介绍页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成一个问卷结果页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个课程表页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">帮我做灵感收集墙</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个生日祝福网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">帮我生成小游戏排行榜</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个会议议程页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">把报价单做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个品牌介绍页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成一个问卷结果页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个课程表页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">帮我做灵感收集墙</span></div></div></div></div><div class="pointer-events-none fixed bottom-0 top-20 z-0 hidden w-[calc((100vw-1200px)/2-1rem)] overflow-hidden [mask-image:linear-gradient(180deg,transparent,black_10%,black_88%,transparent)] 2xl:block right-0"><div class="absolute w-[760px] opacity-45 left-0 translate-x-1/4" style="top:8%"><div style="--duration:54s"><div class="hero-barrage-track hero-barrage-reverse"><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我做一个打砖块小游戏</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这份日报做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个手机端抽签页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个 AI 对话型登录页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">用 HTML 做产品定价页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个课堂计分板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把表格变成可视化看板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个活动报名页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我做一个打砖块小游戏</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这份日报做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个手机端抽签页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个 AI 对话型登录页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">用 HTML 做产品定价页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个课堂计分板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把表格变成可视化看板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个活动报名页</span></div></div></div><div class="absolute w-[760px] opacity-[0.38] left-0" style="top:29%"><div style="--duration:62s"><div class="hero-barrage-track "><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我部署到 htmlcode.fun</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成后直接给我链接</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">顺手写个项目简介</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">代码不要变，样式升级</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个可分享的单页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这段文案做成海报页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">加一个倒计时组件</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个客户演示 Demo</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我部署到 htmlcode.fun</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成后直接给我链接</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">顺手写个项目简介</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">代码不要变，样式升级</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个可分享的单页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这段文案做成海报页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">加一个倒计时组件</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个客户演示 Demo</span></div></div></div><div class="absolute w-[760px] opacity-40 left-0 translate-x-1/4" style="top:51%"><div style="--duration:68s"><div class="hero-barrage-track hero-barrage-reverse"><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个 SaaS 状态页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把需求整理成 HTML 工具</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个 API 测试页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个二维码落地页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我上线到应用商城</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个作品集页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把 Markdown 转成漂亮网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个每日待办板</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做一个 SaaS 状态页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把需求整理成 HTML 工具</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个 API 测试页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个二维码落地页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我上线到应用商城</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">做一个作品集页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">把 Markdown 转成漂亮网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个每日待办板</span></div></div></div><div class="absolute w-[760px] opacity-[0.34] left-0" style="top:74%"><div style="--duration:76s"><div class="hero-barrage-track "><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个生日祝福网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">帮我生成小游戏排行榜</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个会议议程页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">把报价单做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个品牌介绍页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成一个问卷结果页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个课程表页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">帮我做灵感收集墙</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个生日祝福网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">帮我生成小游戏排行榜</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个会议议程页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">把报价单做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">做个品牌介绍页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成一个问卷结果页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">做一个课程表页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">帮我做灵感收集墙</span></div></div></div></div><div class="pointer-events-none absolute left-1/2 top-[575px] z-0 hidden w-[min(900px,calc(100vw-360px))] -translate-x-1/2 overflow-hidden opacity-55 lg:block"><div style="--duration:60s"><div class="hero-barrage-track "><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我做一个打砖块小游戏</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这份日报做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个手机端抽签页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个 AI 对话型登录页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我部署到 htmlcode.fun</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成后直接给我链接</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">顺手写个项目简介</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">代码不要变，样式升级</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我做一个打砖块小游戏</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">把这份日报做成网页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">生成一个手机端抽签页面</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">做个 AI 对话型登录页</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-sky-200/80 bg-white/55 text-slate-500 shadow-sky-200/30">帮我部署到 htmlcode.fun</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-cyan-200/80 bg-cyan-50/55 text-slate-500 shadow-cyan-200/30">生成后直接给我链接</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-indigo-200/70 bg-indigo-50/50 text-slate-500 shadow-indigo-200/25">顺手写个项目简介</span><span class="mx-2 inline-flex rounded-full border px-4 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm border-emerald-200/70 bg-emerald-50/50 text-slate-500 shadow-emerald-200/25">代码不要变，样式升级</span></div></div></div><section class="relative z-10 overflow-hidden rounded-[36px] border border-white/85 bg-white/55 px-6 py-12 text-slate-950 shadow-[0_28px_90px_rgba(14,116,144,0.13)] ring-1 ring-sky-100/70 backdrop-blur-xl sm:px-10 sm:py-16 lg:py-20"><div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(34,211,238,0.28),transparent_32%),radial-gradient(circle_at_82%_16%,rgba(216,180,254,0.28),transparent_32%),radial-gradient(circle_at_50%_96%,rgba(186,230,253,0.54),transparent_38%),linear-gradient(145deg,rgba(255,255,255,0.72)_0%,rgba(219,242,255,0.72)_46%,rgba(226,232,255,0.76)_100%)]"></div><div class="pointer-events-none absolute inset-0 opacity-35 [background:linear-gradient(90deg,rgba(14,116,144,0.08)_1px,transparent_1px),linear-gradient(rgba(14,116,144,0.06)_1px,transparent_1px)] [background-size:52px_52px]"></div><div class="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/80 to-transparent"></div><div class="pointer-events-none absolute left-1/2 top-1/2 h-[430px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/50 blur-3xl"></div><div class="pointer-events-none absolute -left-24 bottom-[-90px] h-52 w-72 rounded-full bg-cyan-200/30 blur-3xl"></div><div class="pointer-events-none absolute -right-24 top-[-70px] h-52 w-72 rounded-full bg-violet-200/30 blur-3xl"></div><div class="pointer-events-none absolute inset-x-0 top-0 z-0 h-32 bg-gradient-to-b from-white/45 to-transparent"></div><div class="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-32 bg-gradient-to-t from-sky-100/40 to-transparent"></div><div class="relative z-10 mx-auto max-w-4xl text-center"><div class="inline-flex items-center rounded-full border border-sky-200 bg-white/75 px-4 py-1 text-sm font-semibold text-sky-800 shadow-sm backdrop-blur"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles mr-2 h-4 w-4" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg>CHUNXI科技部署工具</div><h1 class="mt-6 text-4xl font-black leading-tight tracking-tight text-slate-950 drop-shadow-[0_3px_18px_rgba(14,116,144,0.10)] sm:text-6xl lg:text-7xl">CHUNXI.fun</h1><p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">把想法直接告诉 Agent：它生成 HTML、调用 API 部署，然后把可访问链接交给你。</p><div class="mt-7 flex flex-wrap items-center justify-center gap-2 text-sm"><span class="inline-flex items-center rounded-full border border-sky-200 bg-white/70 px-3 py-1.5 font-semibold text-slate-700 shadow-sm backdrop-blur"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot mr-1.5 h-4 w-4 text-sky-600" aria-hidden="true"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>告诉 Agent 需求</span><span class="inline-flex items-center rounded-full border border-sky-200 bg-white/70 px-3 py-1.5 font-semibold text-slate-700 shadow-sm backdrop-blur"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wand-sparkles mr-1.5 h-4 w-4 text-sky-600" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"></path><path d="m14 7 3 3"></path><path d="M5 6v4"></path><path d="M19 14v4"></path><path d="M10 2v2"></path><path d="M7 8H3"></path><path d="M21 16h-4"></path><path d="M11 3H9"></path></svg>秒级上线应用</span><span class="inline-flex items-center rounded-full border border-sky-200 bg-white/70 px-3 py-1.5 font-semibold text-slate-700 shadow-sm backdrop-blur"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rocket mr-1.5 h-4 w-4 text-sky-600" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>自定义短链后缀</span><span class="inline-flex items-center rounded-full border border-sky-200 bg-white/70 px-3 py-1.5 font-semibold text-slate-700 shadow-sm backdrop-blur"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles mr-1.5 h-4 w-4 text-sky-600" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg>点赞锁定作品</span></div><div class="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm"><a class="inline-flex items-center rounded-xl border border-sky-300 bg-sky-600 px-4 py-2 font-semibold text-white shadow-lg shadow-sky-200/50 transition hover:border-sky-400 hover:bg-sky-700" href="javascript:chunxiOpenDeploy()" onclick="chunxiOpenDeploy();return false;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-xml mr-2 h-4 w-4" aria-hidden="true"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>前往手动部署</a><a class="inline-flex items-center rounded-xl border border-sky-200 bg-white/75 px-4 py-2 font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:border-sky-300 hover:bg-white" href="javascript:chunxiOpenApiDocs()" onclick="chunxiOpenApiDocs();return false;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe mr-2 h-4 w-4" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>查看 API 文档</a></div></div></section><div id="chunxi-marketplace-placeholder" style="display:none"></div></div><!--$--><!--/$--></main></div><script id="chunxi-portal-js">
+(function() {
+  const LS_KEY_USERS = 'chunxi_portal_users';
+  const LS_KEY_SESSION = 'chunxi_portal_session';
+  const LS_KEY_LANG = 'chunxi_lang';
+  const CORS_PASSWORD = 'BCCXYLKJDS784317';
+  const PORTAL_HOME_URL = (typeof window !== 'undefined' && window.location && window.location.href) ? window.location.href.split('?')[0] : 'https://pagedrop.io';
+  let isLoginMode = true;
+  let currentSession = null;
+  let currentTemplate = null;
+  let currentLang = localStorage.getItem(LS_KEY_LANG) || 'zh';
+
+  const i18n = {
+    zh: {
+      'nav.deploy': '部署工具', 'nav.logout': '退出登录', 'nav.settings': '设置', 'nav.manual': '手动部署', 'nav.api': 'API 文档', 'nav.cors_off': 'CORS 已关闭', 'nav.cors_on': 'CORS 已开启', 'cors.prompt': '请输入 CORS 密码', 'cors.wrong': '密码错误',
+      'hero.deploy': '前往手动部署', 'hero.api': '查看 API 文档', 'hero.subtitle': '把想法直接告诉 Agent：它生成 HTML、调用 API 部署，然后把可访问链接交给你。', 'hero.badge': 'CHUNXI科技部署工具',
+      'section.my': '我部署的', 'section.market': '模板商城', 'empty.my': '暂无部署，去模板商城选择模板快速部署吧',
+      'card.preview': '预览', 'card.use': '编辑使用', 'card.status': '运行中', 'card.detail': '查看详情', 'card.visit': '访问部署',
+      'settings.title': '设置', 'settings.sub': '账号、视图与系统信息',
+      'settings.account': '账号与安全', 'settings.email': '当前登录邮箱：',
+      'settings.switch': '切换账号', 'settings.logout': '退出登录', 'settings.view': '视图排版',
+      'settings.lang': '语言切换',
+      'view.mobile': '手机版', 'view.tablet': '平板版', 'view.desktop': '电脑版',
+      'deploy.title': '手动部署', 'deploy.sub': '粘贴 HTML 代码或公网链接即可部署',
+      'deploy.codeTab': '粘贴 HTML 代码', 'deploy.urlTab': '粘贴公网链接',
+      'deploy.codeLabel': 'HTML 代码', 'deploy.urlLabel': 'HTML 公网链接',
+      'deploy.titleLabel': '标题（可选）', 'deploy.urlTip': '链接需要允许跨域访问，否则请切换为「粘贴 HTML 代码」。',
+      'deploy.submit': '开始部署', 'deploy.deploying': '部署中…', 'deploy.back': '返回首页'
+    },
+    en: {
+      'nav.deploy': 'Deploy Tool', 'nav.logout': 'Logout', 'nav.settings': 'Settings', 'nav.manual': 'Manual Deploy', 'nav.api': 'API Docs', 'nav.cors_off': 'CORS Off', 'nav.cors_on': 'CORS On', 'cors.prompt': 'Enter CORS password', 'cors.wrong': 'Wrong password',
+      'hero.deploy': 'Manual Deploy', 'hero.api': 'API Docs', 'hero.subtitle': 'Tell the Agent your idea: it generates HTML, calls the API to deploy, and gives you the accessible link.', 'hero.badge': 'CHUNXI Tech Deploy Tool',
+      'section.my': 'My Deploys', 'section.market': 'Templates', 'empty.my': 'No deploys yet, choose a template to deploy.',
+      'card.preview': 'Preview', 'card.use': 'Edit & Use', 'card.status': 'Running', 'card.detail': 'Details', 'card.visit': 'Visit',
+      'settings.title': 'Settings', 'settings.sub': 'Account, View & System',
+      'settings.account': 'Account & Security', 'settings.email': 'Logged in as: ',
+      'settings.switch': 'Switch Account', 'settings.logout': 'Logout', 'settings.view': 'Layout',
+      'settings.lang': 'Language',
+      'view.mobile': 'Mobile', 'view.tablet': 'Tablet', 'view.desktop': 'Desktop',
+      'deploy.title': 'Manual Deploy', 'deploy.sub': 'Paste HTML code or public link to deploy',
+      'deploy.codeTab': 'Paste HTML Code', 'deploy.urlTab': 'Paste Public Link',
+      'deploy.codeLabel': 'HTML Code', 'deploy.urlLabel': 'HTML Public Link',
+      'deploy.titleLabel': 'Title (optional)', 'deploy.urlTip': 'Link must allow CORS, otherwise use "Paste HTML Code".',
+      'deploy.submit': 'Deploy', 'deploy.deploying': 'Deploying…', 'deploy.back': 'Back to Home'
+    },
+    ja: {
+      'nav.deploy': 'デプロイツール', 'nav.logout': 'ログアウト', 'nav.settings': '設定', 'nav.manual': '手動デプロイ', 'nav.api': 'API ドキュメント', 'nav.cors_off': 'CORS オフ', 'nav.cors_on': 'CORS オン', 'cors.prompt': 'CORS パスワードを入力', 'cors.wrong': 'パスワードが違います',
+      'hero.deploy': '手動デプロイへ', 'hero.api': 'API ドキュメントを見る', 'hero.subtitle': 'エージェントにアイデアを伝えるだけ：HTML を生成し、API を呼び出してデプロイし、アクセス可能なリンクを渡します。', 'hero.badge': 'CHUNXI科技デプロイツール',
+      'section.my': 'マイデプロイ', 'section.market': 'テンプレート', 'empty.my': 'デプロイはありません。テンプレートを選んでください。',
+      'card.preview': 'プレビュー', 'card.use': '編集して使用', 'card.status': '実行中', 'card.detail': '詳細', 'card.visit': '開く',
+      'settings.title': '設定', 'settings.sub': 'アカウント、表示、システム情報',
+      'settings.account': 'アカウントとセキュリティ', 'settings.email': 'ログイン中のメール：',
+      'settings.switch': 'アカウント切替', 'settings.logout': 'ログアウト', 'settings.view': 'レイアウト',
+      'settings.lang': '言語',
+      'view.mobile': 'モバイル', 'view.tablet': 'タブレット', 'view.desktop': 'デスクトップ',
+      'deploy.title': '手動デプロイ', 'deploy.sub': 'HTML コードまたは公開リンクを貼り付けてデプロイ',
+      'deploy.codeTab': 'HTML コードを貼り付け', 'deploy.urlTab': '公開リンクを貼り付け',
+      'deploy.codeLabel': 'HTML コード', 'deploy.urlLabel': 'HTML 公開リンク',
+      'deploy.titleLabel': 'タイトル（任意）', 'deploy.urlTip': 'リンクが CORS を許可する必要があります。そうでない場合は「HTML コードを貼り付け」を使用してください。',
+      'deploy.submit': 'デプロイ', 'deploy.deploying': 'デプロイ中…', 'deploy.back': 'ホームに戻る'
+    },
+    ko: {
+      'nav.deploy': '배포 도구', 'nav.logout': '로그아웃', 'nav.settings': '설정', 'nav.manual': '수동 배포', 'nav.api': 'API 문서', 'nav.cors_off': 'CORS 꺼짐', 'nav.cors_on': 'CORS 켜짐', 'cors.prompt': 'CORS 비밀번호 입력', 'cors.wrong': '비밀번호가 틀렸습니다',
+      'hero.deploy': '수동 배포로 이동', 'hero.api': 'API 문서 보기', 'hero.subtitle': '에이전트에게 아이디어를 알려주세요: HTML을 생성하고 API를 호출하여 배포하고 접근 가능한 링크를 제공합니다.', 'hero.badge': 'CHUNXI 배포 도구',
+      'section.my': '내 배포', 'section.market': '템플릿', 'empty.my': '배포된 항목이 없습니다. 템플릿을 선택하세요.',
+      'card.preview': '미리보기', 'card.use': '편집 및 사용', 'card.status': '실행 중', 'card.detail': '상세', 'card.visit': '방문',
+      'settings.title': '설정', 'settings.sub': '계정, 보기 및 시스템 정보',
+      'settings.account': '계정 및 보안', 'settings.email': '현재 로그인 이메일: ',
+      'settings.switch': '계정 전환', 'settings.logout': '로그아웃', 'settings.view': '레이아웃',
+      'settings.lang': '언어',
+      'view.mobile': '모바일', 'view.tablet': '태블릿', 'view.desktop': '데스크톱',
+      'deploy.title': '수동 배포', 'deploy.sub': 'HTML 코드 또는 공개 링크를 붙여넣어 배포하세요',
+      'deploy.codeTab': 'HTML 코드 붙여넣기', 'deploy.urlTab': '공개 링크 붙여넣기',
+      'deploy.codeLabel': 'HTML 코드', 'deploy.urlLabel': 'HTML 공개 링크',
+      'deploy.titleLabel': '제목(선택)', 'deploy.urlTip': '링크가 CORS를 허용해야 합니다. 그렇지 않으면 "HTML 코드 붙여넣기"를 사용하세요.',
+      'deploy.submit': '배포', 'deploy.deploying': '배포 중…', 'deploy.back': '홈으로 돌아가기'
+    },
+    fr: {
+      'nav.deploy': 'Outil de déploiement', 'nav.logout': 'Déconnexion', 'nav.settings': 'Paramètres', 'nav.manual': 'Déploiement manuel', 'nav.api': 'Docs API', 'nav.cors_off': 'CORS désactivé', 'nav.cors_on': 'CORS activé', 'cors.prompt': 'Entrez le mot de passe CORS', 'cors.wrong': 'Mot de passe incorrect',
+      'hero.deploy': 'Déploiement manuel', 'hero.api': 'Voir les docs API', 'hero.subtitle': 'Dites votre idée à l\'Agent : il génère du HTML, appelle l\'API pour déployer et vous donne le lien accessible.', 'hero.badge': 'Outil de déploiement CHUNXI',
+      'section.my': 'Mes déploiements', 'section.market': 'Modèles', 'empty.my': 'Aucun déploiement, choisissez un modèle.',
+      'card.preview': 'Aperçu', 'card.use': 'Modifier & utiliser', 'card.status': 'En cours', 'card.detail': 'Détails', 'card.visit': 'Visiter',
+      'settings.title': 'Paramètres', 'settings.sub': 'Compte, affichage et système',
+      'settings.account': 'Compte et sécurité', 'settings.email': 'Email connecté : ',
+      'settings.switch': 'Changer de compte', 'settings.logout': 'Déconnexion', 'settings.view': 'Affichage',
+      'settings.lang': 'Langue',
+      'view.mobile': 'Mobile', 'view.tablet': 'Tablette', 'view.desktop': 'Ordinateur',
+      'deploy.title': 'Déploiement manuel', 'deploy.sub': 'Collez le code HTML ou un lien public pour déployer',
+      'deploy.codeTab': 'Coller le code HTML', 'deploy.urlTab': 'Coller le lien public',
+      'deploy.codeLabel': 'Code HTML', 'deploy.urlLabel': 'Lien public HTML',
+      'deploy.titleLabel': 'Titre (facultatif)', 'deploy.urlTip': 'Le lien doit autoriser CORS, sinon utilisez "Coller le code HTML".',
+      'deploy.submit': 'Déployer', 'deploy.deploying': 'Déploiement…', 'deploy.back': 'Retour à l\'accueil'
+    },
+    de: {
+      'nav.deploy': 'Bereitstellungstool', 'nav.logout': 'Abmelden', 'nav.settings': 'Einstellungen', 'nav.manual': 'Manuelle Bereitstellung', 'nav.api': 'API-Docs', 'nav.cors_off': 'CORS aus', 'nav.cors_on': 'CORS an', 'cors.prompt': 'CORS-Passwort eingeben', 'cors.wrong': 'Falsches Passwort',
+      'hero.deploy': 'Manuelle Bereitstellung', 'hero.api': 'API-Docs anzeigen', 'hero.subtitle': 'Sagen Sie dem Agenten Ihre Idee: Er generiert HTML, ruft die API zur Bereitstellung auf und gibt Ihnen den zugänglichen Link.', 'hero.badge': 'CHUNXI Bereitstellungstool',
+      'section.my': 'Meine Bereitstellungen', 'section.market': 'Vorlagen', 'empty.my': 'Noch keine Bereitstellungen, wählen Sie eine Vorlage.',
+      'card.preview': 'Vorschau', 'card.use': 'Bearbeiten & nutzen', 'card.status': 'Läuft', 'card.detail': 'Details', 'card.visit': 'Besuchen',
+      'settings.title': 'Einstellungen', 'settings.sub': 'Konto, Ansicht und System',
+      'settings.account': 'Konto & Sicherheit', 'settings.email': 'Angemeldet als: ',
+      'settings.switch': 'Konto wechseln', 'settings.logout': 'Abmelden', 'settings.view': 'Ansicht',
+      'settings.lang': 'Sprache',
+      'view.mobile': 'Mobil', 'view.tablet': 'Tablet', 'view.desktop': 'Desktop',
+      'deploy.title': 'Manuelle Bereitstellung', 'deploy.sub': 'Fügen Sie HTML-Code oder einen öffentlichen Link ein, um bereitzustellen',
+      'deploy.codeTab': 'HTML-Code einfügen', 'deploy.urlTab': 'Öffentlichen Link einfügen',
+      'deploy.codeLabel': 'HTML-Code', 'deploy.urlLabel': 'Öffentlicher HTML-Link',
+      'deploy.titleLabel': 'Titel (optional)', 'deploy.urlTip': 'Link muss CORS erlauben, sonst "HTML-Code einfügen" verwenden.',
+      'deploy.submit': 'Bereitstellen', 'deploy.deploying': 'Bereitstellung…', 'deploy.back': 'Zurück zur Startseite'
+    },
+    es: {
+      'nav.deploy': 'Herramienta de despliegue', 'nav.logout': 'Cerrar sesión', 'nav.settings': 'Ajustes', 'nav.manual': 'Despliegue manual', 'nav.api': 'Docs API', 'nav.cors_off': 'CORS apagado', 'nav.cors_on': 'CORS encendido', 'cors.prompt': 'Introduce la contraseña CORS', 'cors.wrong': 'Contraseña incorrecta',
+      'hero.deploy': 'Ir al despliegue manual', 'hero.api': 'Ver docs API', 'hero.subtitle': 'Dile tu idea al Agente: genera HTML, llama a la API para desplegar y te da el enlace accesible.', 'hero.badge': 'Herramienta de despliegue CHUNXI',
+      'section.my': 'Mis despliegues', 'section.market': 'Plantillas', 'empty.my': 'Aún no hay despliegues, elige una plantilla.',
+      'card.preview': 'Vista previa', 'card.use': 'Editar y usar', 'card.status': 'En ejecución', 'card.detail': 'Detalles', 'card.visit': 'Visitar',
+      'settings.title': 'Ajustes', 'settings.sub': 'Cuenta, vista y sistema',
+      'settings.account': 'Cuenta y seguridad', 'settings.email': 'Email actual: ',
+      'settings.switch': 'Cambiar cuenta', 'settings.logout': 'Cerrar sesión', 'settings.view': 'Diseño',
+      'settings.lang': 'Idioma',
+      'view.mobile': 'Móvil', 'view.tablet': 'Tablet', 'view.desktop': 'Escritorio',
+      'deploy.title': 'Despliegue manual', 'deploy.sub': 'Pega código HTML o un enlace público para desplegar',
+      'deploy.codeTab': 'Pegar código HTML', 'deploy.urlTab': 'Pegar enlace público',
+      'deploy.codeLabel': 'Código HTML', 'deploy.urlLabel': 'Enlace público HTML',
+      'deploy.titleLabel': 'Título (opcional)', 'deploy.urlTip': 'El enlace debe permitir CORS, de lo contrario usa "Pegar código HTML".',
+      'deploy.submit': 'Desplegar', 'deploy.deploying': 'Desplegando…', 'deploy.back': 'Volver al inicio'
+    },
+    ru: {
+      'nav.deploy': 'Инструмент развёртывания', 'nav.logout': 'Выйти', 'nav.settings': 'Настройки', 'nav.manual': 'Ручное развёртывание', 'nav.api': 'Документация API', 'nav.cors_off': 'CORS выкл.', 'nav.cors_on': 'CORS вкл.', 'cors.prompt': 'Введите пароль CORS', 'cors.wrong': 'Неверный пароль',
+      'hero.deploy': 'Перейти к ручному развёртыванию', 'hero.api': 'Открыть документацию API', 'hero.subtitle': 'Расскажите агенту свою идею: он генерирует HTML, вызывает API для развёртывания и даёт вам доступную ссылку.', 'hero.badge': 'Инструмент развёртывания CHUNXI',
+      'section.my': 'Мои развёртывания', 'section.market': 'Шаблоны', 'empty.my': 'Пока нет развёртываний, выберите шаблон.',
+      'card.preview': 'Предпросмотр', 'card.use': 'Изменить и использовать', 'card.status': 'Работает', 'card.detail': 'Подробности', 'card.visit': 'Открыть',
+      'settings.title': 'Настройки', 'settings.sub': 'Аккаунт, вид и система',
+      'settings.account': 'Аккаунт и безопасность', 'settings.email': 'Текущий email: ',
+      'settings.switch': 'Сменить аккаунт', 'settings.logout': 'Выйти', 'settings.view': 'Макет',
+      'settings.lang': 'Язык',
+      'view.mobile': 'Мобильный', 'view.tablet': 'Планшет', 'view.desktop': 'Компьютер',
+      'deploy.title': 'Ручное развёртывание', 'deploy.sub': 'Вставьте HTML-код или публичную ссылку для развёртывания',
+      'deploy.codeTab': 'Вставить HTML-код', 'deploy.urlTab': 'Вставить публичную ссылку',
+      'deploy.codeLabel': 'HTML-код', 'deploy.urlLabel': 'Публичная HTML-ссылка',
+      'deploy.titleLabel': 'Название (необязательно)', 'deploy.urlTip': 'Ссылка должна разрешать CORS, иначе используйте "Вставить HTML-код".',
+      'deploy.submit': 'Развернуть', 'deploy.deploying': 'Развёртывание…', 'deploy.back': 'Вернуться на главную'
+    }
+  };
+
+  function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || i18n['zh'][key] || key; }
+  function applyLanguage() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key) el.textContent = t(key);
+    });
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function tip(msg) { const el = $('chunxi-tip'); if (el) el.textContent = msg || ''; }
+  function getUsers() { try { return JSON.parse(localStorage.getItem(LS_KEY_USERS) || '{}'); } catch(e) { return {}; } }
+  function saveUsers(u) { localStorage.setItem(LS_KEY_USERS, JSON.stringify(u)); }
+
+  const templates = [
+    {
+      id: 'corp-home', title: '企业官网模板 CHUNXI科技制作', description: '适用于科技公司、工作室展示的响应式官网首页，包含 Hero、特性、联系方式。',
+      tags: ['官网', '企业', '响应式'],
+      fields: [
+        { key: 'company', label: '公司名称', default: 'CHUNXI科技有限公司' },
+        { key: 'slogan', label: '宣传语', default: '用科技点亮未来' },
+        { key: 'contact', label: '联系邮箱', default: 'hello@chunxi.tech' }
+      ],
+      html: function(v){
+        return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+v.company+'</title><style>body{font-family:system-ui;margin:0;background:#f0f9ff;color:#0f172a}header{background:linear-gradient(135deg,#0284c7,#7c3aed);color:#fff;padding:60px 20px;text-align:center}h1{margin:0 0 10px;font-size:36px}.slogan{font-size:18px;opacity:.9}section{padding:40px 20px;max-width:800px;margin:0 auto}.feature{display:flex;gap:16px;align-items:flex-start;margin-bottom:20px}.feature b{font-size:18px}.footer{text-align:center;padding:30px;color:#64748b}</style></head><body><header><h1>'+v.company+'</h1><div class="slogan">'+v.slogan+'</div></header><section><div class="feature"><div><b>专业团队</b><p>汇聚行业顶尖技术人才，提供端到端解决方案。</p></div></div><div class="feature"><div><b>极速交付</b><p>标准化流程与自动化工具，让项目更快上线。</p></div></div></section><div class="footer">联系我们：'+v.contact+'</div></body></html>';
+      }
+    },
+    {
+      id: 'product-showcase', title: '产品展示模板 CHUNXI科技制作', description: '突出产品卖点、价格与购买入口的营销单页，适合新品发布。',
+      tags: ['营销', '产品', '单页'],
+      fields: [
+        { key: 'product', label: '产品名称', default: '哈利猫 AI' },
+        { key: 'price', label: '价格', default: '¥9.9 / 月' },
+        { key: 'btnText', label: '按钮文字', default: '立即体验' }
+      ],
+      html: function(v){
+        return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+v.product+'</title><style>body{font-family:system-ui;margin:0;background:#fff}section{padding:60px 20px;text-align:center}.badge{display:inline-block;background:#e0f2fe;color:#0369a1;padding:6px 14px;border-radius:999px;font-size:14px;font-weight:700}h1{font-size:42px;margin:20px 0 10px}.price{font-size:28px;color:#7c3aed;font-weight:800}button{background:linear-gradient(135deg,#0284c7,#7c3aed);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;margin-top:20px}</style></head><body><section><div class="badge">新品上线</div><h1>'+v.product+'</h1><p class="price">'+v.price+'</p><button>'+v.btnText+'</button></section></body></html>';
+      }
+    },
+    {
+      id: 'activity-landing', title: '活动报名模板 CHUNXI科技制作', description: '带倒计时、活动信息和报名表单的活动落地页。',
+      tags: ['活动', '报名', '落地页'],
+      fields: [
+        { key: 'event', label: '活动名称', default: 'CHUNXI 开发者大会' },
+        { key: 'date', label: '活动时间', default: '2026年8月18日' },
+        { key: 'location', label: '活动地点', default: '线上直播' }
+      ],
+      html: function(v){
+        return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+v.event+'</title><style>body{font-family:system-ui;margin:0;background:#fefce8;color:#422006}header{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:60px 20px;text-align:center}h1{margin:0 0 10px;font-size:34px}.meta{font-size:16px;opacity:.95}section{padding:40px 20px;max-width:600px;margin:0 auto}.row{margin-bottom:16px}label{display:block;font-weight:700;margin-bottom:6px}input{width:100%;padding:12px;border:1px solid #fde68a;border-radius:10px}button{width:100%;background:#ef4444;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:700;cursor:pointer}</style></head><body><header><h1>'+v.event+'</h1><div class="meta">'+v.date+' · '+v.location+'</div></header><section><div class="row"><label>姓名</label><input placeholder="请输入姓名"></div><div class="row"><label>邮箱</label><input placeholder="请输入邮箱"></div><button>立即报名</button></section></body></html>';
+      }
+    },
+    {
+      id: 'personal-homepage', title: '个人主页模板 CHUNXI科技制作', description: '简洁的个人介绍页面，包含头像占位、技能标签和社交链接。',
+      tags: ['个人', '主页', '简历'],
+      fields: [
+        { key: 'name', label: '姓名', default: '春熙' },
+        { key: 'role', label: '职位', default: '全栈开发者' },
+        { key: 'bio', label: '简介', default: '热爱编程，专注于 AI 与 Web 应用开发。' }
+      ],
+      html: function(v){
+        return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+v.name+' - 个人主页</title><style>body{font-family:system-ui;margin:0;background:#f8fafc;display:flex;justify-content:center;align-items:center;min-height:100vh}.card{background:#fff;border-radius:24px;padding:40px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.1);text-align:center}.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#7c3aed);margin:0 auto 16px}h1{margin:0 0 6px;font-size:26px}.role{color:#64748b;margin-bottom:14px}.bio{font-size:14px;color:#475569;line-height:1.6}</style></head><body><div class="card"><div class="avatar"></div><h1>'+v.name+'</h1><div class="role">'+v.role+'</div><div class="bio">'+v.bio+'</div></div></body></html>';
+      }
+    }
+  ];
+
+  function createLoginOverlay() {
+    if ($('chunxi-login-overlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'chunxi-login-overlay';
+    overlay.innerHTML = '<div class="chunxi-card"><div class="chunxi-inner">' +
+      '<div class="chunxi-title">CHUNXI<span>科技部署工具</span></div>' +
+      '<div class="chunxi-sub">蛋仔CHUNXI科技团队 · 春熙医疗团队开发</div>' +
+      '<div class="chunxi-group"><label>邮箱地址</label><input type="email" id="chunxi-email" autocomplete="off"></div>' +
+      '<div class="chunxi-group"><label>密码</label><input type="password" id="chunxi-password" autocomplete="off"></div>' +
+      '<button class="chunxi-btn" id="chunxi-authBtn">📧 邮箱登录</button>' +
+      '<div class="chunxi-switch"><span id="chunxi-modeText">没有账号？</span><a id="chunxi-toggleMode">去注册</a></div>' +
+      '<div class="chunxi-tip" id="chunxi-tip"></div>' +
+      '</div></div>';
+    document.body.appendChild(overlay);
+    $('chunxi-authBtn').addEventListener('click', handleAuth);
+    $('chunxi-toggleMode').addEventListener('click', () => { isLoginMode = !isLoginMode; updateLoginUI(); tip(''); });
+    $('chunxi-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuth(); });
+    $('chunxi-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuth(); });
+  }
+
+  function updateLoginUI() {
+    const authBtn = $('chunxi-authBtn'); if (!authBtn) return;
+    authBtn.textContent = isLoginMode ? '📧 邮箱登录' : '📧 邮箱注册';
+    $('chunxi-modeText').textContent = isLoginMode ? '没有账号？' : '已有账号？';
+    $('chunxi-toggleMode').textContent = isLoginMode ? '去注册' : '去登录';
+  }
+
+  function handleAuth() {
+    const email = $('chunxi-email').value.trim();
+    const password = $('chunxi-password').value.trim();
+    if (!email || !password) { tip('请输入邮箱和密码'); return; }
+    const users = getUsers();
+    if (isLoginMode) {
+      if (!users[email]) { tip('该邮箱未注册，请切换注册'); return; }
+      if (users[email].password !== password) { tip('密码错误'); return; }
+      localStorage.setItem(LS_KEY_SESSION, JSON.stringify({ email }));
+      tip('');
+      location.reload();
+    } else {
+      if (users[email]) { tip('该邮箱已注册，请直接登录'); return; }
+      users[email] = { password, createdAt: Date.now() };
+      saveUsers(users);
+      localStorage.setItem(LS_KEY_SESSION, JSON.stringify({ email }));
+      tip('注册成功，正在登录…');
+      setTimeout(() => location.reload(), 300);
+    }
+  }
+
+  function addNavControls() {
+    const navRight = document.querySelector('nav .flex.items-center.gap-3');
+    const navLinks = document.querySelectorAll('nav a[href="#chunxi-template-market"], nav a[href="javascript:chunxiOpenDeploy()"], nav a[href="javascript:chunxiOpenApiDocs()"]');
+    navLinks.forEach(a => {
+      const text = (a.textContent || '').trim();
+      if (text.includes('部署工具')) a.setAttribute('data-i18n', 'nav.deploy');
+      if (text.includes('手动部署')) { a.setAttribute('data-i18n', 'nav.manual'); a.href = 'javascript:chunxiShowDeployPage()'; }
+      if (text.includes('API')) a.setAttribute('data-i18n', 'nav.api');
+    });
+    if (navRight) {
+      const btns = Array.from(navRight.querySelectorAll('button, a'));
+      btns.forEach(btn => {
+        const text = (btn.textContent || '').trim();
+        const title = (btn.getAttribute('title') || '').trim();
+        const hasShield = !!btn.querySelector('svg.lucide-shield, .lucide-shield');
+        // 把原站 CORS 按钮（shield 图标）改成可控状态
+        if (hasShield || text.includes('CORS') || title.includes('CORS') || text.includes('跨域') || title.includes('跨域')) {
+          btn.disabled = false;
+          btn.removeAttribute('disabled');
+          btn.style.cursor = 'pointer';
+          btn.style.display = 'inline-flex';
+          const span = btn.querySelector('span.hidden');
+          let corsEnabled = false;
+          function updateCorsText() {
+            const key = corsEnabled ? 'nav.cors_on' : 'nav.cors_off';
+            btn.title = t(key);
+            if (span) { span.textContent = t(key); span.setAttribute('data-i18n', key); }
+          }
+          updateCorsText();
+          btn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!corsEnabled) {
+              const pwd = prompt(t('cors.prompt'));
+              if (pwd === CORS_PASSWORD) { corsEnabled = true; updateCorsText(); }
+              else if (pwd !== null) { alert(t('cors.wrong')); }
+            } else {
+              corsEnabled = false;
+              updateCorsText();
+            }
+          };
+          return;
+        }
+        // 隐藏原站失效的「加载中…」按钮和语言切换按钮
+        if (text.includes('加载中') || title.includes('加载中') ||
+            text === '简' || text === 'EN' || title.includes('Switch to English') || title.includes('切换到中文') ||
+            btn.getAttribute('aria-pressed') === 'true' || btn.getAttribute('aria-pressed') === 'false') {
+          btn.style.display = 'none';
+        }
+      });
+    }
+    if (navRight && !navRight.querySelector('#chunxi-settings-btn')) {
+      const settingsBtn = document.createElement('button');
+      settingsBtn.id = 'chunxi-settings-btn';
+      settingsBtn.innerHTML = '⚙️ <span data-i18n="nav.settings">设置</span>';
+      settingsBtn.onclick = openSettings;
+      settingsBtn.style.display = currentSession ? 'inline-flex' : 'none';
+      navRight.insertBefore(settingsBtn, navRight.firstChild);
+    }
+    if (navRight && !navRight.querySelector('#chunxi-logout-btn')) {
+      const logoutBtn = document.createElement('button');
+      logoutBtn.id = 'chunxi-logout-btn';
+      logoutBtn.innerHTML = '<span data-i18n="nav.logout">退出登录</span>';
+      logoutBtn.style.display = currentSession ? 'inline-flex' : 'none';
+      logoutBtn.onclick = logout;
+      navRight.insertBefore(logoutBtn, navRight.firstChild);
+    }
+    applyLanguage();
+  }
+
+  function updateNavAuthState() {
+    const settingsBtn = document.getElementById('chunxi-settings-btn');
+    const logoutBtn = document.getElementById('chunxi-logout-btn');
+    if (settingsBtn) settingsBtn.style.display = currentSession ? 'inline-flex' : 'none';
+    if (logoutBtn) logoutBtn.style.display = currentSession ? 'inline-flex' : 'none';
+  }
+
+  function renderSections() {
+    const main = document.querySelector('main > div.relative');
+    if (!main || main.querySelector('#chunxi-dashboard')) return;
+
+    const dashboard = document.createElement('div');
+    dashboard.id = 'chunxi-dashboard';
+
+    // 我部署的（空的）
+    dashboard.innerHTML += '<div class="chunxi-section" id="chunxi-my-deploys">' +
+      '<h2><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;color:#0284c7"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path></svg> <span data-i18n="section.my">我部署的</span></h2>' +
+      '<div class="chunxi-empty" data-i18n="empty.my">暂无部署，去模板商城选择模板快速部署吧</div></div>';
+
+    // 模板商城
+    let gridHtml = `<div class="chunxi-section" id="chunxi-template-market"><h2><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;color:#0284c7"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> <span data-i18n="section.market">模板商城</span></h2><div class="chunxi-template-grid">`;
+    templates.forEach(t => {
+      gridHtml += `<div class="chunxi-template-card" data-id="${t.id}">
+        <div class="status" data-i18n="card.status">运行中</div>
+        <h3>${t.title}</h3>
+        <p>${t.description}</p>
+        <div class="tags">${t.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
+        <div class="actions"><button class="btn-primary" onclick="chunxiUseTemplate('${t.id}')" data-i18n="card.use">编辑使用</button><button class="btn-secondary" onclick="chunxiPreviewTemplate('${t.id}')" data-i18n="card.preview">预览</button></div>
+      </div>`;
+    });
+    gridHtml += '</div></div>';
+    dashboard.innerHTML += gridHtml;
+
+    main.appendChild(dashboard);
+    applyLanguage();
+  }
+
+  function renderLoggedIn() {
+    document.body.classList.remove('chunxi-locked');
+    const overlay = $('chunxi-login-overlay');
+    if (overlay) overlay.style.display = 'none';
+    document.title = 'CHUNXI.fun';
+
+    let nav = document.querySelector('nav > div.mx-auto');
+    if (nav && !nav.querySelector('#chunxi-team-badge')) {
+      const badge = document.createElement('div');
+      badge.id = 'chunxi-team-badge';
+      badge.innerHTML = '<span class="dot"></span><span>蛋仔CHUNXI科技团队 · 春熙医疗团队开发</span>';
+      badge.style.display = 'flex';
+      nav.style.position = 'relative';
+      nav.appendChild(badge);
+    }
+
+    updateNavAuthState();
+    renderSections();
+
+    // 默认视图：电脑版
+    applyViewMode('desktop');
+  }
+
+  function logout() {
+    localStorage.removeItem(LS_KEY_SESSION);
+    location.reload();
+  }
+
+  window.chunxiUseTemplate = function(id) {
+    const t = templates.find(x => x.id === id);
+    if (!t) return;
+    currentTemplate = t;
+    const values = {};
+    t.fields.forEach(f => values[f.key] = f.default);
+    openEditor(t, values);
+  };
+
+  function wrapWithBackButton(html) {
+    const backBtn = `<div style="position:fixed;top:12px;left:12px;z-index:9999"><a href="#" onclick="if(window.opener){window.opener.focus();window.close();return false;}location.href='${PORTAL_HOME_URL}';return false;" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.92);border:1px solid rgba(186,230,253,0.9);border-radius:14px;padding:9px 15px;color:#0369a1;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 6px 20px rgba(14,116,144,0.14);backdrop-filter:blur(8px)">← 返回首页</a></div>`;
+    return html.replace('</body>', backBtn + '</body>');
+  }
+
+  window.chunxiPreviewTemplate = function(id) {
+    const t = templates.find(x => x.id === id);
+    if (!t) return;
+    const values = {};
+    t.fields.forEach(f => values[f.key] = f.default);
+    const win = window.open('', '_blank');
+    if (win) win.document.write(wrapWithBackButton(t.html(values)));
+  };
+
+  function uploadToLitterbox(html, title, description) {
+    return new Promise((resolve, reject) => {
+      const form = new FormData();
+      form.append('reqtype', 'fileupload');
+      form.append('time', '72h');
+      const blob = new Blob([html], { type: 'text/html' });
+      form.append('fileToUpload', blob, 'index.html');
+
+      fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+        method: 'POST',
+        body: form
+      })
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(url => {
+        url = url.trim();
+        if (url.startsWith('https://')) {
+          resolve(url);
+        } else {
+          throw new Error(url || '上传失败');
+        }
+      })
+      .catch(e => {
+        const msg = e.message || '';
+        if (msg.includes('CORS') || msg.includes('NetworkError') || msg.includes('Failed to fetch') || msg.includes('Network request')) {
+          reject(new Error('浏览器无法直接访问 Litterbox API（CORS 限制）。请把 HTML 代码复制给我，由我帮你部署。'));
+        } else {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  function openEditor(template, values) {
+    closeEditor();
+    const overlay = document.createElement('div');
+    overlay.id = 'chunxi-editor-overlay';
+    let fieldsHtml = '';
+    template.fields.forEach(f => {
+      fieldsHtml += '<div class="chunxi-group"><label>'+f.label+'</label><input type="text" id="chunxi-field-'+f.key+'" value="'+values[f.key]+'"></div>';
+    });
+    overlay.innerHTML = '<div class="chunxi-card"><button class="chunxi-close" onclick="chunxiCloseEditor()">×</button><div class="chunxi-inner">' +
+      '<div class="chunxi-title">编辑 <span>'+template.title+'</span></div>' +
+      '<div class="chunxi-sub">修改文字后可直接预览或部署</div>' +
+      fieldsHtml +
+      '<div class="chunxi-preview-box" id="chunxi-preview"></div>' +
+      '<button class="chunxi-btn" onclick="chunxiDeployTemplate()">🚀 立即部署</button>' +
+      '<button class="chunxi-btn secondary" onclick="chunxiUpdatePreview()" style="margin-top:8px">👁 更新预览</button>' +
+      '</div></div>';
+    document.body.appendChild(overlay);
+    window.chunxiUpdatePreview = function() {
+      const v = {};
+      template.fields.forEach(f => v[f.key] = $('chunxi-field-'+f.key).value.trim() || f.default);
+      $('chunxi-preview').innerHTML = '<iframe style="width:100%;height:220px;border:none;border-radius:12px" srcdoc="'+template.html(v).replace(/"/g, '&quot;')+'"></iframe>';
+    };
+    window.chunxiDeployTemplate = function() {
+      const v = {};
+      template.fields.forEach(f => v[f.key] = $('chunxi-field-'+f.key).value.trim() || f.default);
+      const html = wrapWithBackButton(template.html(v));
+      const title = v[template.fields[0].key];
+      uploadToLitterbox(html, title, template.description + ' | CORS:' + CORS_PASSWORD)
+        .then(url => {
+          alert('部署成功：' + url);
+          const my = JSON.parse(localStorage.getItem('chunxi_my_deploys') || '[]');
+          my.unshift({ title: title, url: url, detailUrl: url, date: new Date().toLocaleString() });
+          localStorage.setItem('chunxi_my_deploys', JSON.stringify(my));
+          closeEditor();
+          renderMyDeploys();
+        })
+        .catch(e => alert('部署失败：' + e.message));
+    };
+    window.chunxiCloseEditor = closeEditor;
+    window.chunxiUpdatePreview();
+  }
+
+  function closeEditor() {
+    const el = $('chunxi-editor-overlay');
+    if (el) el.remove();
+    window.chunxiUpdatePreview = null;
+    window.chunxiDeployTemplate = null;
+    window.chunxiCloseEditor = null;
+  }
+
+  function renderMyDeploys() {
+    const section = $('chunxi-my-deploys');
+    if (!section) return;
+    const my = JSON.parse(localStorage.getItem('chunxi_my_deploys') || '[]');
+    if (my.length === 0) {
+      section.querySelector('.chunxi-deploys-list')?.remove();
+      if (!section.querySelector('.chunxi-empty')) {
+        section.innerHTML += '<div class="chunxi-empty">暂无部署，去模板商城选择模板快速部署吧</div>';
+      }
+      return;
+    }
+    let listHtml = '<div class="chunxi-deploys-list" style="display:grid;gap:12px;margin-top:12px">';
+    my.forEach(item => {
+      const detailLink = item.detailUrl || item.url;
+      listHtml += '<div class="chunxi-template-card" style="padding:14px"><h3 style="padding-right:0">'+item.title+'</h3><p style="font-size:12px;color:#64748b">'+item.date+'</p><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><a href="'+item.url+'" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;height:34px;border-radius:10px;background:linear-gradient(135deg,#0284c7,#7c3aed);color:#fff;font-weight:700;text-decoration:none;padding:0 14px" data-i18n="card.visit">访问部署</a><a href="'+detailLink+'" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;height:34px;border-radius:10px;background:rgba(255,255,255,0.85);border:1px solid #bae6fd;color:#475569;font-weight:700;text-decoration:none;padding:0 14px" data-i18n="card.detail">查看详情</a></div></div>';
+    });
+    listHtml += '</div>';
+    section.querySelector('.chunxi-empty')?.remove();
+    const old = section.querySelector('.chunxi-deploys-list');
+    if (old) old.outerHTML = listHtml; else section.innerHTML += listHtml;
+  }
+
+  function openSettings() {
+    closeSettings();
+    const overlay = document.createElement('div');
+    overlay.id = 'chunxi-settings-overlay';
+    const email = currentSession ? currentSession.email : '';
+    const langOptions = [
+      { value: 'zh', label: '中文' }, { value: 'en', label: 'English' },
+      { value: 'ja', label: '日本語' }, { value: 'ko', label: '한국어' },
+      { value: 'fr', label: 'Français' }, { value: 'de', label: 'Deutsch' },
+      { value: 'es', label: 'Español' }, { value: 'ru', label: 'Русский' }
+    ];
+    overlay.innerHTML = `<div class="chunxi-card"><button class="chunxi-close" onclick="chunxiCloseSettings()">×</button><div class="chunxi-inner">
+      <div class="chunxi-title" data-i18n="settings.title">设置</div>
+      <div class="chunxi-sub" data-i18n="settings.sub">账号、视图与系统信息</div>
+      <div class="chunxi-setting-row"><div><div class="label" data-i18n="settings.account">账号与安全</div><div class="value"><span data-i18n="settings.email">当前登录邮箱：</span>${email}</div></div></div>
+      <div class="chunxi-setting-row"><div class="label" data-i18n="settings.lang">语言切换</div><select id="chunxi-lang-select" style="height:36px;border-radius:10px;border:1px solid #bae6fd;padding:0 10px;background:rgba(255,255,255,0.85);color:#0f172a;font-size:14px" onchange="chunxiSetLanguage(this.value)">${langOptions.map(o => `<option value="${o.value}" ${o.value === currentLang ? 'selected' : ''}>${o.label}</option>`).join('')}</select></div>
+      <div class="chunxi-setting-row"><div class="label" data-i18n="settings.switch">切换账号</div><button class="chunxi-btn secondary" style="width:auto;padding:0 18px;margin:0" onclick="chunxiSwitchAccount()" data-i18n="settings.switch">切换账号</button></div>
+      <div class="chunxi-setting-row"><div class="label" data-i18n="settings.logout">退出登录</div><button class="chunxi-btn secondary" style="width:auto;padding:0 18px;margin:0" onclick="chunxiLogout()" data-i18n="settings.logout">退出登录</button></div>
+      <div class="chunxi-setting-row"><div class="label" data-i18n="settings.view">视图排版</div><div class="chunxi-view-btns"><button id="view-mobile" onclick="chunxiSetView('mobile')" data-i18n="view.mobile">手机版</button><button id="view-tablet" onclick="chunxiSetView('tablet')" data-i18n="view.tablet">平板版</button><button id="view-desktop" onclick="chunxiSetView('desktop')" data-i18n="view.desktop">电脑版</button></div></div>
+    </div></div>`;
+    document.body.appendChild(overlay);
+    window.chunxiCloseSettings = closeSettings;
+    window.chunxiLogout = logout;
+    window.chunxiSwitchAccount = function() { localStorage.removeItem(LS_KEY_SESSION); closeSettings(); location.reload(); };
+    window.chunxiSetView = function(mode) { applyViewMode(mode); updateViewButtons(mode); };
+    window.chunxiSetLanguage = setLanguage;
+    const saved = localStorage.getItem('chunxi_view_mode') || 'desktop';
+    updateViewButtons(saved);
+    applyLanguage();
+  }
+
+  function setLanguage(lang) {
+    if (!i18n[lang]) return;
+    currentLang = lang;
+    localStorage.setItem(LS_KEY_LANG, lang);
+    applyLanguage();
+  }
+
+  function closeSettings() {
+    const el = $('chunxi-settings-overlay');
+    if (el) el.remove();
+    window.chunxiCloseSettings = null;
+    window.chunxiLogout = null;
+    window.chunxiSwitchAccount = null;
+    window.chunxiSetView = null;
+  }
+
+  function applyViewMode(mode) {
+    document.body.classList.remove('view-mobile', 'view-tablet', 'view-desktop');
+    document.body.classList.add('view-' + mode);
+    localStorage.setItem('chunxi_view_mode', mode);
+  }
+
+  function updateViewButtons(mode) {
+    ['mobile','tablet','desktop'].forEach(m => {
+      const btn = $('view-' + m);
+      if (btn) btn.classList.toggle('active', m === mode);
+    });
+  }
+
+  window.chunxiOpenApiDocs = function() {
+    const overlay = document.createElement('div');
+    overlay.id = 'chunxi-api-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(240,249,255,0.96);backdrop-filter:blur(12px);display:flex;flex-direction:column;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif';
+    overlay.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-bottom:1px solid #bae6fd;box-shadow:0 2px 8px rgba(0,0,0,0.05)">
+      <button onclick="document.getElementById('chunxi-api-overlay').remove()" style="display:inline-flex;align-items:center;gap:6px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:8px 14px;color:#0369a1;font-size:14px;font-weight:700;cursor:pointer">← 关闭</button>
+      <span style="font-weight:800;color:#0f172a">API 文档</span>
+      <div style="width:70px"></div>
+    </div>
+    <iframe id="chunxi-api-frame" src="/api-docs" style="flex:1;border:none;width:100%"></iframe>`;
+    document.body.appendChild(overlay);
+    const frame = document.getElementById('chunxi-api-frame');
+    frame.onload = function() {
+      try {
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        const style = doc.createElement('style');
+        style.textContent = 'a[href="/"].text-blue-600,a[href="/"].text-slate-600,nav a[href="/"],nav a[href="/#marketplace"]{display:none !important;}';
+        doc.head.appendChild(style);
+      } catch(e) {}
+    };
+  };
+
+  let homeContent = '';
+
+  function hideNavControls() {
+    const navRight = document.querySelector('nav .flex.items-center.gap-3');
+    const navMid = document.querySelector('nav .hidden.md\:flex');
+    if (navRight) navRight.style.display = 'none';
+    if (navMid) navMid.style.display = 'none';
+  }
+  function showNavControls() {
+    const navRight = document.querySelector('nav .flex.items-center.gap-3');
+    const navMid = document.querySelector('nav .hidden.md\:flex');
+    if (navRight) navRight.style.display = '';
+    if (navMid) navMid.style.display = '';
+  }
+
+  function getDeployPageHtml() {
+    return `<div class="chunxi-deploy-page"><div class="chunxi-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="chunxi-title" data-i18n="deploy.title">手动部署</div>
+        <button class="chunxi-btn secondary" style="width:auto;padding:0 18px;margin:0" onclick="chunxiHideDeployPage()" data-i18n="deploy.back">返回首页</button>
+      </div>
+      <div class="chunxi-sub" data-i18n="deploy.sub">CHUNXI科技部署工具 · 粘贴 HTML 代码或公网链接即可部署</div>
+      <div class="chunxi-deploy-tabs">
+        <button id="chunxi-tab-code" class="active" onclick="chunxiSwitchDeployTab('code')" data-i18n="deploy.codeTab">粘贴 HTML 代码</button>
+        <button id="chunxi-tab-url" onclick="chunxiSwitchDeployTab('url')" data-i18n="deploy.urlTab">粘贴公网链接</button>
+      </div>
+      <div id="chunxi-deploy-code" class="chunxi-deploy-area active">
+        <div class="chunxi-group"><label data-i18n="deploy.codeLabel">HTML 代码</label><textarea id="chunxi-deploy-html" class="chunxi-codebox" placeholder="<!DOCTYPE html>..."></textarea></div>
+        <div class="chunxi-group"><label data-i18n="deploy.titleLabel">标题（可选）</label><input type="text" id="chunxi-deploy-title" placeholder="我的网站"></div>
+      </div>
+      <div id="chunxi-deploy-url" class="chunxi-deploy-area">
+        <div class="chunxi-group"><label data-i18n="deploy.urlLabel">HTML 公网链接</label><input type="url" id="chunxi-deploy-link" placeholder="https://example.com/page.html"></div>
+        <div class="chunxi-group"><label data-i18n="deploy.titleLabel">标题（可选）</label><input type="text" id="chunxi-deploy-url-title" placeholder="我的网站"></div>
+        <div class="chunxi-tip" id="chunxi-deploy-tip" style="color:#64748b" data-i18n="deploy.urlTip">链接需要允许跨域访问，否则请切换为「粘贴 HTML 代码」。</div>
+      </div>
+      <button class="chunxi-btn" id="chunxi-deploy-btn" onclick="chunxiSubmitDeploy()" data-i18n="deploy.submit">开始部署</button>
+    </div></div>`;
+  }
+
+  function showDeployPage() {
+    const main = document.querySelector('main');
+    if (!main) return;
+    if (!homeContent) homeContent = main.innerHTML;
+    hideNavControls();
+    main.innerHTML = getDeployPageHtml();
+    applyLanguage();
+    window.scrollTo(0, 0);
+  }
+
+  function hideDeployPage() {
+    const main = document.querySelector('main');
+    if (!main || !homeContent) return;
+    main.innerHTML = homeContent;
+    showNavControls();
+    reorderHeroButtons();
+    renderSections();
+    addNavControls();
+    renderMyDeploys();
+    applyLanguage();
+  }
+
+  window.chunxiOpenDeploy = showDeployPage;
+  window.chunxiShowDeployPage = showDeployPage;
+  window.chunxiHideDeployPage = hideDeployPage;
+  window.chunxiSwitchDeployTab = switchDeployTab;
+  window.chunxiSubmitDeploy = submitDeploy;
+
+  function switchDeployTab(tab) {
+    ['code','url'].forEach(t => {
+      const tabBtn = $('chunxi-tab-' + t);
+      const area = $('chunxi-deploy-' + t);
+      if (tabBtn) tabBtn.classList.toggle('active', t === tab);
+      if (area) area.classList.toggle('active', t === tab);
+    });
+  }
+
+  function submitDeploy() {
+    const isUrl = $('chunxi-deploy-url').classList.contains('active');
+    const btn = $('chunxi-deploy-btn');
+    btn.disabled = true;
+    btn.textContent = t('deploy.deploying');
+
+    function doDeploy(content, title) {
+      if (!content.trim()) { alert('内容不能为空'); btn.disabled = false; btn.textContent = t('deploy.submit'); return; }
+      uploadToLitterbox(content, title || 'CHUNXI部署', '通过 CHUNXI.fun 手动部署')
+        .then(url => {
+          btn.disabled = false;
+          btn.textContent = t('deploy.submit');
+          alert('部署成功：' + url);
+          const my = JSON.parse(localStorage.getItem('chunxi_my_deploys') || '[]');
+          my.unshift({ title: title || 'CHUNXI部署', url: url, detailUrl: url, date: new Date().toLocaleString() });
+          localStorage.setItem('chunxi_my_deploys', JSON.stringify(my));
+          hideDeployPage();
+          renderMyDeploys();
+        })
+        .catch(e => {
+          btn.disabled = false;
+          btn.textContent = t('deploy.submit');
+          alert('部署失败：' + e.message);
+        });
+    }
+
+    if (isUrl) {
+      const url = $('chunxi-deploy-link').value.trim();
+      const title = $('chunxi-deploy-url-title').value.trim();
+      if (!url) { alert('请输入公网链接'); btn.disabled = false; btn.textContent = t('deploy.submit'); return; }
+      fetch(url, { mode: 'cors' })
+        .then(r => { if (!r.ok) throw new Error('请求失败 ' + r.status); return r.text(); })
+        .then(html => doDeploy(html, title))
+        .catch(e => {
+          btn.disabled = false;
+          btn.textContent = t('deploy.submit');
+          alert('无法获取该链接（CORS 限制）：' + e.message + '。请复制网页源代码，使用「粘贴 HTML 代码」方式部署。');
+        });
+    } else {
+      doDeploy($('chunxi-deploy-html').value, $('chunxi-deploy-title').value.trim());
+    }
+  }
+
+  function reorderHeroButtons() {
+    const hero = document.querySelector('section.relative.z-10 .relative.z-10');
+    if (!hero) return;
+    const buttons4 = hero.querySelector('.mt-7.flex.flex-wrap');
+    const buttons2 = hero.querySelector('.mt-8.flex.flex-wrap');
+    if (buttons4 && buttons2 && buttons4.compareDocumentPosition(buttons2) & Node.DOCUMENT_POSITION_FOLLOWING) {
+      buttons4.classList.remove('mt-7');
+      buttons4.classList.add('mt-8');
+      buttons2.classList.remove('mt-8');
+      buttons2.classList.add('mt-7');
+      hero.appendChild(buttons4);
+    }
+    // 给主按钮加 i18n 标记
+    hero.querySelectorAll('a, button').forEach(el => {
+      const text = (el.textContent || '').trim();
+      if (text.includes('手动部署')) { el.setAttribute('data-i18n', 'hero.deploy'); el.href = 'javascript:chunxiShowDeployPage()'; el.onclick = function(e){ e.preventDefault(); showDeployPage(); }; }
+      if (text.includes('API')) el.setAttribute('data-i18n', 'hero.api');
+    });
+    // 给 hero 徽章、标题、副标题加 i18n 标记
+    hero.querySelectorAll('span, p, h1, h2, h3, div').forEach(el => {
+      const text = (el.textContent || '').trim();
+      if (text === 'CHUNXI科技部署工具') el.setAttribute('data-i18n', 'hero.badge');
+      if (text.includes('把想法直接告诉 Agent')) el.setAttribute('data-i18n', 'hero.subtitle');
+    });
+  }
+
+  function init() {
+    const main = document.querySelector('main');
+    if (main && !homeContent) homeContent = main.innerHTML;
+    reorderHeroButtons();
+    createLoginOverlay();
+    addNavControls();
+    const sessionRaw = localStorage.getItem(LS_KEY_SESSION);
+    if (sessionRaw) {
+      try {
+        currentSession = JSON.parse(sessionRaw);
+        renderLoggedIn();
+      } catch(e) { document.body.classList.add('chunxi-locked'); }
+    } else {
+      document.body.classList.add('chunxi-locked');
+    }
+    updateLoginUI();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body></html>
