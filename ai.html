@@ -1,0 +1,3306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CHUNXI 哈利猫 - 智能AI助手</title>
+<meta name="description" content="CHUNXI 哈利猫 - 由CHUNXI科技团队、春熙医疗团队开发的智能AI助手">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #f7f7f8;
+    --bg-grad-1: rgba(255,180,140,0.10);
+    --bg-grad-2: rgba(140,180,255,0.10);
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --text-2: #6b6b70;
+    --text-3: #9a9a9f;
+    --border: #ececef;
+    --primary: #1a1a1a;
+    --accent: #ff7a3d;
+    --hover: #f0f0f2;
+    --shadow: 0 8px 24px rgba(0,0,0,0.08);
+    --wechat: #07c160;
+    --qq: #1296db;
+  }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background:
+      radial-gradient(800px 400px at 0% 0%, var(--bg-grad-1), transparent 60%),
+      radial-gradient(600px 300px at 100% 100%, var(--bg-grad-2), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ============== Login Screen ============== */
+  .login-screen {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #fff5ed 0%, #f0f4ff 100%);
+    padding: 20px;
+  }
+  .login-card {
+    width: 100%; max-width: 420px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 40px 32px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.10);
+    text-align: center;
+    animation: cardIn .5s ease-out;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .login-logo {
+    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px;
+    background: linear-gradient(135deg, #ffd1c1, #ffa877);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px;
+    box-shadow: 0 10px 30px rgba(255,138,76,0.3);
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
+  .login-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .login-title span { color: var(--accent); }
+  .login-subtitle {
+    color: var(--text-2); font-size: 13px; margin-bottom: 4px;
+    line-height: 1.6;
+  }
+  .login-desc {
+    color: var(--text-3); font-size: 13px; margin-bottom: 24px;
+  }
+  .login-btn {
+    width: 100%; height: 48px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; font-size: 15px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all .2s; margin-bottom: 12px;
+    color: var(--text);
+  }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .login-btn .lb-icon { font-size: 22px; }
+  .login-btn.wechat:hover { border-color: var(--wechat); color: var(--wechat); }
+  .login-btn.qq:hover { border-color: var(--qq); color: var(--qq); }
+  .login-skip {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-3); font-size: 13px; margin-top: 8px;
+    padding: 8px; transition: color .2s;
+  }
+  .login-skip:hover { color: var(--accent); }
+  .login-input {
+    width: 100%; height: 46px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    padding: 0 14px; font-size: 15px; color: var(--text);
+    outline: none; transition: all .2s; margin-bottom: 12px;
+  }
+  .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,122,61,0.12); }
+  .login-input::placeholder { color: var(--text-3); }
+  .login-form { text-align: left; }
+  .login-toggle {
+    background: none; border: none; cursor: pointer;
+    color: var(--accent); font-size: 13px; padding: 4px;
+    transition: opacity .2s;
+  }
+  .login-toggle:hover { opacity: 0.8; }
+  .login-footer {
+    margin-top: auto; padding-top: 8px;
+    color: var(--text-3); font-size: 9px;
+    line-height: 1.4; opacity: 0.6;
+    text-align: center;
+  }
+  .auth-tabs {
+    display: flex; gap: 8px; margin-bottom: 16px;
+    background: var(--hover); border-radius: 12px; padding: 4px;
+  }
+  .auth-tab {
+    flex: 1; height: 36px; border-radius: 10px;
+    border: none; background: transparent;
+    color: var(--text-2); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .auth-tab.active { background: var(--card); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .auth-subtabs {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .auth-subtab {
+    flex: 1; height: 32px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text-2); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all .2s;
+  }
+  .auth-subtab.active { border-color: var(--accent); color: var(--accent); background: #fff8f5; }
+  .auth-panel { animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ============== Main App ============== */
+  .main-app {
+    display: none; flex-direction: column;
+    height: 100vh; position: relative; z-index: 1;
+  }
+  .main-app.show { display: flex; }
+
+  .header {
+    position: relative; z-index: 5;
+    height: 60px; padding: 0 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .brand-avatar {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #ffb1a8, #ff8a4c);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; box-shadow: 0 4px 10px rgba(255,138,76,0.3);
+  }
+  .brand-text { min-width: 0; }
+  .brand-name {
+    font-weight: 700; font-size: 15px; letter-spacing: 0.3px;
+    display: flex; align-items: baseline; gap: 4px;
+  }
+  .brand-name small { font-weight: 400; color: var(--text-2); font-size: 11px; }
+  .brand-tagline {
+    color: var(--text-3); font-size: 11px; line-height: 1.3;
+    margin-top: 2px;
+  }
+  .header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .menu-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; color: var(--text-2); font-size: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all .2s; flex-shrink: 0;
+  }
+  .menu-btn:hover { background: var(--hover); color: var(--text); }
+  .icon-btn {
+    height: 34px; padding: 0 12px; border-radius: 17px;
+    border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; color: var(--text-2); font-size: 13px;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: all .2s;
+  }
+  .icon-btn:hover { background: var(--hover); color: var(--text); }
+  .deploy-btn { color: var(--accent); }
+  .deploy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #a8c5ff, #7a9eff);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: 2px solid var(--card);
+  }
+
+  /* ============== Conversation Drawer ============== */
+  .drawer-overlay {
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(0,0,0,0.25);
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .drawer-overlay.show { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+    width: 280px; max-width: 80vw;
+    background: var(--card);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.10);
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    display: flex; flex-direction: column;
+  }
+  .drawer.show { transform: translateX(0); }
+  .drawer-header {
+    height: 60px; padding: 0 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .drawer-title { font-size: 15px; font-weight: 700; }
+  .drawer-close {
+    position: relative; width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--hover); cursor: pointer;
+    color: var(--text-2); font-size: 20px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5; transition: all .2s; flex-shrink: 0;
+  }
+  .drawer-close:hover { background: var(--card); color: var(--text); }
+  .drawer-new {
+    margin: 12px 14px 6px;
+    height: 40px; border-radius: 12px;
+    border: 1px dashed var(--accent); background: #fff8f5;
+    color: var(--accent); font-size: 14px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .2s;
+  }
+  .drawer-new:hover { background: #ffede5; }
+  .drawer-list {
+    flex: 1; overflow-y: auto;
+    padding: 8px 12px 16px;
+  }
+  .conv-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 12px;
+    cursor: pointer; transition: all .2s;
+    margin-bottom: 6px;
+  }
+  .conv-item:hover { background: var(--hover); }
+  .conv-item.active { background: #fff5ed; border: 1px solid #ffd9c4; }
+  .conv-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg,#ffd1c1,#ffa877);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .conv-info { flex: 1; min-width: 0; }
+  .conv-title {
+    font-size: 14px; font-weight: 500;
+    color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .conv-time {
+    font-size: 11px; color: var(--text-3); margin-top: 2px;
+  }
+  .conv-delete {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: none; background: transparent; cursor: pointer;
+    color: var(--text-3); font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .2s;
+  }
+  .conv-item:hover .conv-delete { opacity: 1; }
+  .conv-delete:hover { background: #ffeeee; color: #ff4444; }
+  .drawer-empty {
+    padding: 40px 16px; text-align: center; color: var(--text-3); font-size: 13px;
+  }
+
+  /* ============== Admin Panel ============== */
+  .admin-panel {
+    display: none; flex-direction: column;
+    position: absolute; inset: 0; z-index: 4;
+    background: var(--bg);
+  }
+  .admin-panel.show { display: flex; }
+  .admin-header {
+    height: 60px; padding: 0 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-title { font-size: 18px; font-weight: 700; }
+  .admin-logout {
+    height: 36px; padding: 0 16px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text-2); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .admin-logout:hover { background: var(--hover); color: var(--text); }
+  .admin-body {
+    flex: 1; overflow-y: auto;
+    padding: 20px; max-width: 900px; margin: 0 auto; width: 100%;
+  }
+  .admin-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .stat-num { font-size: 26px; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+  .admin-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 18px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .admin-card-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+  .admin-form {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .admin-input {
+    flex: 1; min-width: 180px; height: 42px;
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 0 12px; font-size: 14px; outline: none;
+  }
+  .admin-input:focus { border-color: var(--accent); }
+  .admin-btn {
+    height: 42px; padding: 0 18px; border-radius: 12px;
+    border: none; background: var(--accent); color: #fff;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: opacity .2s;
+  }
+  .admin-btn:hover { opacity: 0.9; }
+  .admin-btn.secondary { background: var(--hover); color: var(--text); }
+  .admin-btn.danger { background: #ff4444; }
+  .admin-table-wrap { overflow-x: auto; }
+  .admin-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .admin-table th, .admin-table td {
+    padding: 12px 10px; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-table th { color: var(--text-2); font-weight: 600; }
+  .admin-table td { color: var(--text); }
+  .status-tag {
+    display: inline-block; padding: 3px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+  }
+  .status-normal { background: #e6f7ed; color: #0a9b4a; }
+  .status-banned { background: #ffeeee; color: #ff4444; }
+  .status-admin { background: #fff5ed; color: var(--accent); }
+  .admin-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .admin-actions button {
+    height: 30px; padding: 0 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--card);
+    font-size: 12px; cursor: pointer; transition: all .2s;
+  }
+  .admin-actions button:hover { background: var(--hover); }
+  .admin-actions .ban { color: #ff4444; }
+  .admin-actions .unban { color: #0a9b4a; }
+
+  /* ============== Chat ============== */
+  .chat {
+    flex: 1; overflow-y: auto;
+    padding: 24px 16px 16px;
+    scroll-behavior: smooth;
+    position: relative; z-index: 1;
+  }
+  .chat-inner { max-width: 760px; margin: 0 auto; }
+
+  .welcome-msg {
+    display: flex; gap: 12px; margin: 16px 0; align-items: flex-start;
+    animation: msgIn .4s ease-out;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .welcome-msg .av {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#ffd1c1,#ffa877);
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .welcome-msg .bub {
+    max-width: calc(100% - 60px);
+    background: linear-gradient(135deg, #fff5ed, #fff0e8);
+    border: 1px solid #ffd9c4;
+    border-radius: 14px; padding: 14px 16px;
+    font-size: 15px; line-height: 1.7; color: var(--text);
+  }
+  .welcome-msg .bub strong { color: var(--accent); }
+
+  .msg { display: flex; gap: 12px; margin: 16px 0; align-items: flex-start; animation: msgIn .3s ease-out; }
+  .msg .av {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .msg.user .av { background: linear-gradient(135deg,#a8c5ff,#7a9eff); color: #fff; }
+  .msg.ai .av { background: linear-gradient(135deg,#ffd1c1,#ffa877); }
+  .msg .bub {
+    max-width: calc(100% - 60px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 12px 14px; font-size: 14.5px; line-height: 1.65;
+    word-break: break-word;
+  }
+  .msg.user .bub { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .msg.user { flex-direction: row-reverse; }
+  .msg.user .bub { border-bottom-right-radius: 4px; }
+  .msg.ai .bub { border-bottom-left-radius: 4px; }
+
+  .msg .bub pre {
+    background: #0f1115; color: #e6e6e6;
+    border-radius: 10px; padding: 14px 16px; margin: 10px 0;
+    overflow-x: auto; font-size: 13px; line-height: 1.5;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    position: relative; white-space: pre;
+  }
+  .msg .bub pre code { font-family: inherit; white-space: pre; display: block; }
+  .copy-code-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(255,255,255,0.1); color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px; padding: 4px 10px; font-size: 11px;
+    cursor: pointer; transition: all .2s;
+  }
+  .copy-code-btn:hover { background: rgba(255,255,255,0.2); }
+  .msg .bub code:not(pre code) {
+    background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px;
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px;
+  }
+  .msg.user .bub code:not(pre code) { background: rgba(255,255,255,0.18); color: #fff; }
+  .msg .bub p { margin: 6px 0; }
+  .msg .bub p:first-child { margin-top: 0; }
+  .msg .bub p:last-child { margin-bottom: 0; }
+  .msg .bub h1, .msg .bub h2, .msg .bub h3 { margin: 10px 0 6px; font-weight: 600; }
+  .msg .bub h1 { font-size: 18px; }
+  .msg .bub h2 { font-size: 16px; }
+  .msg .bub h3 { font-size: 15px; }
+  .msg .bub ul, .msg .bub ol { padding-left: 22px; margin: 6px 0; }
+  .msg .bub li { margin: 3px 0; }
+  .msg .bub a { color: var(--accent); text-decoration: none; }
+  .msg .bub a:hover { text-decoration: underline; }
+
+  .gen-image-wrap {
+    position: relative; margin-top: 8px; border-radius: 12px; overflow: hidden;
+    max-width: 360px;
+  }
+  .gen-image-wrap img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .gen-watermark {
+    position: absolute; right: 10px; bottom: 10px;
+    color: #fff; font-size: 12px; font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    letter-spacing: 0.5px; pointer-events: none;
+  }
+  .gen-video-wrap {
+    position: relative; margin-top: 8px; border-radius: 12px; overflow: hidden;
+    max-width: 420px; background: #000;
+  }
+  .gen-video-wrap video { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .gen-video-placeholder {
+    padding: 40px 20px; text-align: center; color: #fff; font-size: 14px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 12px;
+  }
+
+  .typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+  .typing span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-3); animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce { 0%,60%,100%{ transform: translateY(0); opacity:.4; } 30%{ transform: translateY(-5px); opacity:1; } }
+
+  .msg-actions { display: flex; gap: 4px; margin-top: 6px; padding-left: 48px; }
+  .msg-action {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--text-3); padding: 4px 8px; border-radius: 4px;
+    font-size: 12px; display: flex; align-items: center; gap: 3px;
+    transition: all .2s;
+  }
+  .msg-action:hover { background: var(--hover); color: var(--text); }
+
+  /* ============== Composer ============== */
+  .composer-wrap {
+    position: relative; z-index: 5;
+    padding: 12px 16px 16px;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+  .composer {
+    max-width: 760px; margin: 0 auto;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 10px 10px 8px;
+    box-shadow: var(--shadow);
+    position: relative;
+    transition: border-color .2s;
+  }
+  .composer:focus-within { border-color: #d0d0d5; }
+
+  .composer-top { display: flex; align-items: flex-end; gap: 8px; }
+  .plus-btn {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; color: var(--text-2);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s; font-size: 20px; font-weight: 300;
+  }
+  .plus-btn:hover { background: var(--hover); color: var(--text); }
+  .plus-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); transform: rotate(45deg); }
+
+  .textarea-wrap { flex: 1; position: relative; }
+  textarea#input {
+    width: 100%; border: none; outline: none; resize: none;
+    background: transparent; font: inherit; font-size: 15px;
+    color: var(--text); line-height: 1.5;
+    padding: 8px 4px; min-height: 48px; max-height: 160px;
+  }
+  textarea#input::placeholder { color: var(--text-3); }
+
+  .composer-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 4px; padding: 0 4px;
+  }
+  .left-tools { display: flex; gap: 4px; }
+  .tool-btn {
+    height: 32px; padding: 0 10px; border-radius: 16px;
+    background: transparent; border: none; cursor: pointer;
+    color: var(--text-2); font-size: 13px;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: background .2s;
+  }
+  .tool-btn:hover { background: var(--hover); color: var(--text); }
+  .tool-btn.active { color: var(--accent); }
+  .tool-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  .right-tools { display: flex; align-items: center; gap: 6px; }
+  .round-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; color: var(--text-2);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .round-btn:hover { background: var(--hover); color: var(--text); }
+  .model-pill {
+    height: 36px; padding: 0 12px; border-radius: 18px;
+    background: var(--card); border: 1px solid var(--border);
+    cursor: pointer; color: var(--text); font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all .2s;
+  }
+  .model-pill:hover { background: var(--hover); }
+  .model-pill .arrow { font-size: 10px; color: var(--text-3); }
+
+  .send-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: none; background: var(--primary);
+    color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .send-btn:hover { transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .send-btn svg { width: 16px; height: 16px; }
+
+  .plus-menu {
+    position: absolute; left: 10px; bottom: calc(100% + 8px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 8px; min-width: 200px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    opacity: 0; transform: translateY(8px) scale(0.95);
+    pointer-events: none; transition: all .2s;
+    z-index: 10;
+  }
+  .plus-menu.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+  .plus-menu-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    font-size: 14px; color: var(--text); transition: background .2s;
+    user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .plus-menu-item:hover { background: var(--hover); }
+  .plus-menu-item .pmi-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .pmi-icon.img { background: #ffe2d3; color: #ff6b1a; }
+  .pmi-icon.cam { background: #d8e8ff; color: #2b6cff; }
+  .pmi-icon.gen { background: #e7d8ff; color: #7a3dff; }
+  .pmi-icon.vid { background: #d8f4e0; color: #16a34a; }
+
+  .model-menu {
+    position: absolute; right: 10px; bottom: calc(100% + 8px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 8px; min-width: 220px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    opacity: 0; transform: translateY(8px) scale(0.95);
+    pointer-events: none; transition: all .2s;
+    z-index: 10;
+  }
+  .model-menu.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+  .model-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    font-size: 14px; color: var(--text); transition: background .2s;
+  }
+  .model-item:hover { background: var(--hover); }
+  .model-item.active { background: var(--hover); }
+  .model-item .mi-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .mi-icon.hc { background: #fff1e6; color: #ff6b1a; }
+  .mi-icon.chx { background: #e0f0ff; color: #2b6cff; }
+  .mi-icon.nk { background: #f0e0ff; color: #7a3dff; }
+  .mi-icon.cd { background: #e0ffe8; color: #16a34a; }
+  .model-item .mi-text { flex: 1; }
+  .model-item .mi-name { font-weight: 600; font-size: 13.5px; }
+  .model-item .mi-desc { font-size: 11.5px; color: var(--text-2); }
+  .model-item .mi-check { color: var(--accent); font-size: 16px; opacity: 0; }
+  .model-item.active .mi-check { opacity: 1; }
+
+  .voice-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center; flex-direction: column;
+    z-index: 100;
+  }
+  .voice-overlay.show { display: flex; }
+  .voice-orb {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: linear-gradient(135deg, #ffd1c1, #ffa877);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 60px; box-shadow: 0 20px 60px rgba(255,138,76,0.4);
+    animation: pulse 1.4s ease-in-out infinite;
+    position: relative;
+  }
+  .voice-orb::before, .voice-orb::after {
+    content: ""; position: absolute; inset: -10px; border-radius: 50%;
+    border: 2px solid rgba(255,168,119,0.5);
+    animation: ripple 1.4s ease-out infinite;
+  }
+  .voice-orb::after { animation-delay: 0.7s; }
+  @keyframes pulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.05); } }
+  @keyframes ripple { 0%{ transform: scale(1); opacity:1; } 100%{ transform: scale(1.4); opacity:0; } }
+  .voice-text { color: #fff; font-size: 16px; margin-top: 24px; font-weight: 500; }
+  .voice-cancel {
+    margin-top: 30px; padding: 10px 24px; border-radius: 999px;
+    background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25);
+    cursor: pointer; font-size: 14px; transition: background .2s;
+  }
+  .voice-cancel:hover { background: rgba(255,255,255,0.25); }
+
+  .global-watermark {
+    position: fixed; right: 16px; bottom: 6px;
+    color: rgba(0,0,0,0.18); font-size: 11px;
+    pointer-events: none; z-index: 4; user-select: none;
+    font-weight: 500;
+  }
+
+  .toast {
+    position: fixed; left: 50%; top: 80px;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(0,0,0,0.85); color: #fff;
+    padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; opacity: 0; pointer-events: none;
+    transition: all .3s; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .hidden-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+  .img-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 6px 4px 4px; border-radius: 12px;
+    background: var(--hover); margin: 0 0 6px 4px; max-width: 200px;
+  }
+  .img-chip img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; }
+  .img-chip .ic-name { font-size: 12px; color: var(--text-2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .img-chip .ic-remove { background: none; border: none; cursor: pointer; color: var(--text-3); font-size: 14px; padding: 2px; }
+
+  .mode-hint {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff1e6; color: #ff6b1a;
+    border-radius: 12px; padding: 4px 10px; font-size: 12px;
+    margin: 0 0 6px 4px; font-weight: 500;
+  }
+  .mode-hint .mh-x { cursor: pointer; opacity: .7; }
+
+  /* ============== Deploy Modal ============== */
+  .deploy-modal {
+    position: fixed; inset: 0; z-index: 1200;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .deploy-modal.show { display: flex; }
+  .deploy-content {
+    background: var(--card); border-radius: 20px;
+    padding: 24px; max-width: 720px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    animation: cardIn .3s ease-out;
+  }
+  .deploy-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .deploy-header h2 { font-size: 18px; font-weight: 700; }
+  .deploy-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: none; background: var(--hover); cursor: pointer;
+    color: var(--text-2); font-size: 16px;
+  }
+  .deploy-tip { color: var(--text-2); font-size: 13px; margin-bottom: 12px; }
+  .deploy-textarea {
+    width: 100%; min-height: 280px; max-height: 50vh;
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px; font-family: "SF Mono", Menlo, monospace; font-size: 13px;
+    resize: vertical; outline: none;
+  }
+  .deploy-textarea:focus { border-color: var(--accent); }
+  .deploy-submit {
+    width: 100%; height: 44px; border-radius: 22px;
+    border: none; cursor: pointer; margin-top: 12px;
+    background: var(--accent); color: #fff;
+    font-size: 14px; font-weight: 500;
+    transition: all .2s;
+  }
+  .deploy-submit:hover { opacity: 0.9; }
+  .deploy-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+  .deploy-result {
+    margin-top: 16px; padding: 16px;
+    background: #f0f9f0; border: 1px solid #c6e6c6;
+    border-radius: 12px;
+  }
+  .deploy-result p { font-size: 14px; color: #16a34a; font-weight: 600; margin-bottom: 8px; }
+  .deploy-url {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; background: #fff; border-radius: 8px;
+    border: 1px solid var(--border); font-family: monospace; font-size: 13px;
+    word-break: break-all; color: var(--text);
+  }
+  .deploy-copy {
+    background: var(--primary); color: #fff; border: none;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; flex-shrink: 0;
+  }
+
+  /* ============== Image Lightbox ============== */
+  .image-lightbox {
+    position: fixed; inset: 0; z-index: 1300;
+    display: none; align-items: center; justify-content: center; flex-direction: column;
+    background: rgba(0,0,0,0.92); backdrop-filter: blur(12px);
+    padding: 20px;
+  }
+  .image-lightbox.show { display: flex; }
+  .lightbox-img {
+    max-width: 100%; max-height: calc(100vh - 140px);
+    border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    object-fit: contain;
+  }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 20px;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: none; background: rgba(255,255,255,0.15);
+    color: #fff; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+  .lightbox-bar {
+    position: absolute; bottom: 30px; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 20px;
+  }
+  .lightbox-save {
+    height: 46px; padding: 0 24px; border-radius: 12px;
+    border: none; background: var(--accent); color: #fff;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(255,122,61,0.35);
+    transition: opacity .2s;
+  }
+  .lightbox-save:hover { opacity: 0.9; }
+
+  /* ============== Mobile ============== */
+  @media (max-width: 640px) {
+    .header { padding: 0 12px; height: 56px; }
+    .brand-name { font-size: 13px; }
+    .brand-tagline { font-size: 10px; }
+    .icon-btn { padding: 0 8px; font-size: 12px; }
+    .model-pill { padding: 0 8px; font-size: 12px; }
+    .deploy-content { padding: 16px; }
+  }
+
+  .chat::-webkit-scrollbar { width: 6px; }
+  .chat::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+  .chat::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+
+<!-- ============ Login Screen ============ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🐱</div>
+    <h1 class="login-title">CHUNXI <span>哈利猫</span></h1>
+    <p class="login-subtitle">CHUNXI科技团队 · 春熙医疗团队开发</p>
+
+    <!-- 登录 / 注册 大标签 -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login" id="tabLogin">登录</button>
+      <button class="auth-tab" data-tab="register" id="tabRegister">注册</button>
+    </div>
+
+    <!-- 登录表单 -->
+    <div class="auth-panel" id="loginPanel">
+      <div class="auth-subtabs">
+        <button class="auth-subtab active" data-subtab="username" id="subtabUsernameLogin">用户名登录</button>
+        <button class="auth-subtab" data-subtab="email" id="subtabEmailLogin">邮箱登录</button>
+      </div>
+      <div class="login-form">
+        <input type="text" class="login-input" id="loginUsernameInput" placeholder="用户名">
+        <input type="email" class="login-input" id="loginEmailInput" placeholder="邮箱地址" style="display:none">
+        <input type="password" class="login-input" id="loginPasswordInput" placeholder="密码">
+        <button class="login-btn wechat" id="loginBtn">
+          <span class="lb-icon">🔑</span>
+          <span id="loginBtnText">登录</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 注册表单 -->
+    <div class="auth-panel" id="registerPanel" style="display:none">
+      <div class="auth-subtabs">
+        <button class="auth-subtab active" data-subtab="danzai" id="subtabDanzaiReg">蛋仔注册</button>
+        <button class="auth-subtab" data-subtab="email" id="subtabEmailReg">邮箱注册</button>
+      </div>
+      <div class="login-form" id="danzaiRegForm">
+        <input type="text" class="login-input" id="danzaiNameInput" placeholder="蛋仔名字">
+        <input type="text" class="login-input" id="kuaishouNameInput" placeholder="快手名字">
+        <input type="text" class="login-input" id="danzaiIdInput" placeholder="蛋仔编号">
+        <input type="text" class="login-input" id="danzaiUsernameInput" placeholder="设置用户名">
+        <input type="password" class="login-input" id="danzaiPasswordInput" placeholder="设置密码">
+        <button class="login-btn wechat" id="danzaiRegBtn">
+          <span class="lb-icon">🥚</span>
+          <span>蛋仔注册</span>
+        </button>
+      </div>
+      <div class="login-form" id="emailRegForm" style="display:none">
+        <input type="email" class="login-input" id="regEmailInput" placeholder="邮箱地址">
+        <input type="password" class="login-input" id="regPasswordInput" placeholder="设置密码">
+        <button class="login-btn wechat" id="emailRegBtn">
+          <span class="lb-icon">📧</span>
+          <span>邮箱注册</span>
+        </button>
+      </div>
+    </div>
+
+    <button class="login-skip" id="skipBtn">暂不登录，体验 Demo →</button>
+    <div class="login-footer">
+      登录后享受完整功能：多模型对话、代码生成、图像生成、视频生成<br>
+      © 2026 CHUNXI 科技 · 春熙医疗团队
+    </div>
+  </div>
+</div>
+
+<!-- ============ Main App ============ -->
+<div class="main-app" id="mainApp">
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">历史对话</div>
+      <button class="drawer-close" id="drawerClose">×</button>
+    </div>
+    <button class="drawer-new" id="drawerNewChat">+ 新对话</button>
+    <div class="drawer-list" id="drawerList"></div>
+  </div>
+
+  <div class="header">
+    <div class="header-left">
+      <button class="menu-btn" id="menuBtn" title="历史对话">☰</button>
+      <div class="brand-avatar">🐱</div>
+      <div class="brand-text">
+        <div class="brand-name">CHUNXI 哈利猫 <small>v1.0</small></div>
+        <div class="brand-tagline">CHUNXI科技团队 · 春熙医疗团队开发</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn deploy-btn" id="deployBtn" title="部署你的HTML">🚀 部署HTML</button>
+      <button class="icon-btn" id="newChatBtn" title="新对话">+ 新对话</button>
+      <div class="user-avatar" id="userAvatar" title="退出登录">我</div>
+    </div>
+  </div>
+
+  <div class="chat" id="chat">
+    <div class="chat-inner" id="chatInner"></div>
+  </div>
+
+  <div class="composer-wrap">
+    <div class="composer">
+      <div class="plus-menu" id="plusMenu">
+        <label class="plus-menu-item" data-action="send-image" for="fileInput">
+        <div class="pmi-icon img">🖼️</div>
+        <div>发送图片</div>
+      </label>
+      <label class="plus-menu-item" data-action="camera" for="cameraInput">
+        <div class="pmi-icon cam">📷</div>
+        <div>拍照</div>
+      </label>
+        <div class="plus-menu-item" data-action="image-gen">
+          <div class="pmi-icon gen">✨</div>
+          <div>图像生成</div>
+        </div>
+        <div class="plus-menu-item" data-action="video-gen">
+          <div class="pmi-icon vid">🎬</div>
+          <div>视频生成</div>
+        </div>
+      </div>
+
+      <div class="model-menu" id="modelMenu">
+        <div class="model-item active" data-model="harrycat">
+          <div class="mi-icon hc">🐱</div>
+          <div class="mi-text">
+            <div class="mi-name">HarryCat 1.0</div>
+            <div class="mi-desc">默认·全能对话</div>
+          </div>
+          <span class="mi-check">✓</span>
+        </div>
+        <div class="model-item" data-model="chx5">
+          <div class="mi-icon chx">⚡</div>
+          <div class="mi-text">
+            <div class="mi-name">CHX5</div>
+            <div class="mi-desc">高速·简洁回答</div>
+          </div>
+          <span class="mi-check">✓</span>
+        </div>
+        <div class="model-item" data-model="nkmik27">
+          <div class="mi-icon nk">🧠</div>
+          <div class="mi-text">
+            <div class="mi-name">Nkmik 2.7</div>
+            <div class="mi-desc">深度·推理增强</div>
+          </div>
+          <span class="mi-check">✓</span>
+        </div>
+        <div class="model-item" data-model="code">
+          <div class="mi-icon cd">💻</div>
+          <div class="mi-text">
+            <div class="mi-name">Code</div>
+            <div class="mi-desc">代码·最独特</div>
+          </div>
+          <span class="mi-check">✓</span>
+        </div>
+      </div>
+
+      <div class="composer-top">
+        <button class="plus-btn" id="plusBtn" title="更多功能">+</button>
+        <div class="textarea-wrap">
+          <div id="chips"></div>
+          <textarea id="input" placeholder="发消息或上传文件给 CHUNXI 哈利猫..." rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="composer-bottom">
+        <div class="left-tools">
+          <button class="tool-btn" id="webBtn" title="联网搜索">联网</button>
+          <button class="tool-btn" id="deepBtn" title="深度思考">
+            <span class="dot"></span><span>深度思考</span>
+          </button>
+        </div>
+        <div class="right-tools">
+          <button class="model-pill" id="modelBtn">
+            <span id="modelLabel">HarryCat 1.0</span>
+            <span class="arrow">▾</span>
+          </button>
+          <button class="round-btn" id="voiceBtn" title="语音输入">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
+          </button>
+          <button class="send-btn" id="sendBtn" title="发送">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-header">
+      <div class="admin-title">🛡️ 后台管理</div>
+      <button class="admin-logout" id="adminLogout">退出管理</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-stats" id="adminStats"></div>
+      <div class="admin-card">
+        <div class="admin-card-title">添加账户</div>
+        <div class="admin-form">
+          <input type="email" class="admin-input" id="adminNewEmail" placeholder="邮箱地址">
+          <input type="password" class="admin-input" id="adminNewPassword" placeholder="密码（不少于6位）">
+          <button class="admin-btn" id="adminAddUser">添加账户</button>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-title">账户列表</div>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="adminUserTable">
+            <thead>
+              <tr>
+                <th>用户名 / 账号信息</th>
+                <th>注册时间</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="adminUserTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="global-watermark">由CHUNXI科技制作开发</div>
+</div>
+
+<!-- ============ Voice Overlay ============ -->
+<div class="voice-overlay" id="voiceOverlay">
+  <div class="voice-orb">🎤</div>
+  <div class="voice-text">正在聆听…</div>
+  <button class="voice-cancel" id="voiceCancel">取消</button>
+</div>
+
+<!-- ============ Deploy Modal ============ -->
+<div class="deploy-modal" id="deployModal">
+  <div class="deploy-content">
+    <div class="deploy-header">
+      <h2>🚀 部署你的 HTML</h2>
+      <button class="deploy-close" id="deployClose">✕</button>
+    </div>
+    <p class="deploy-tip">把你的 HTML 代码粘贴到下面，点击「立即部署」即可获得公网可访问链接。</p>
+    <textarea class="deploy-textarea" id="deployTextarea" placeholder="<!DOCTYPE html>
+<html>
+<head><title>My Page</title></head>
+<body>
+  <h1>Hello World</h1>
+</body>
+</html>"></textarea>
+    <button class="deploy-submit" id="deploySubmit">🚀 立即部署</button>
+    <div class="deploy-result" id="deployResult" style="display:none">
+      <p>✅ 部署成功！你的 HTML 已上线</p>
+      <div class="deploy-url">
+        <span id="deployUrl" style="flex:1"></span>
+        <button class="deploy-copy" id="deployCopy">📋 复制</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Image Lightbox ============ -->
+<div class="image-lightbox" id="imageLightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="" crossorigin="anonymous">
+  <div class="lightbox-bar">
+    <button class="lightbox-save" id="lightboxSave">💾 保存图片</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<input type="file" id="fileInput" class="hidden-input" accept="image/*">
+<input type="file" id="cameraInput" class="hidden-input" accept="image/*" capture="environment">
+
+<script>
+/* ============== State ============== */
+const state = {
+  loggedIn: false,
+  loginMethod: null,
+  isDemo: false,
+  isAdmin: false,
+  model: 'harrycat',
+  conversations: [],
+  currentConversationId: null,
+  pendingImages: [],
+  mode: 'chat',
+  deepThink: false,
+  web: false,
+  isTyping: false,
+  voice: null
+};
+
+const ADMIN_EMAIL = 'admin@chunxi.fun';
+const ADMIN_DEFAULT_PASSWORD = 'chunxi888';
+
+const CONVERSATIONS_KEY = 'chunxi_conversations';
+const LEGACY_CHAT_HISTORY_KEY = 'chunxi_chat_history';
+const POLLINATIONS_SYSTEM = '你是 CHUNXI 哈利猫，一个友好的 AI 助手。请直接、自然地回答用户的问题，不要提及你是演示版、前端演示或mock回复。回答应围绕用户的问题展开，给出有价值的信息。';
+
+function getCurrentUser() {
+  return localStorage.getItem('chunxi_login_username') || localStorage.getItem('chunxi_login_email') || '';
+}
+function getConversationsKey(username) {
+  return CONVERSATIONS_KEY + '_' + (username || 'guest');
+}
+function getLegacyChatHistoryKey(username) {
+  return LEGACY_CHAT_HISTORY_KEY + '_' + (username || 'guest');
+}
+function getCurrentConvKey(username) {
+  return 'chunxi_current_conv_' + (username || 'guest');
+}
+function saveCurrentConversationId(username, convId) {
+  if (!username || !convId) return;
+  try {
+    localStorage.setItem(getCurrentConvKey(username), convId);
+  } catch (e) {}
+}
+function loadCurrentConversationId(username) {
+  if (!username) return null;
+  try {
+    return localStorage.getItem(getCurrentConvKey(username));
+  } catch (e) { return null; }
+}
+function clearCurrentConversationId(username) {
+  if (!username) return;
+  try {
+    localStorage.removeItem(getCurrentConvKey(username));
+  } catch (e) {}
+}
+function generateId() {
+  return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+}
+function getConversationTitle(messages) {
+  if (!messages || messages.length === 0) return '新对话';
+  for (const m of messages) {
+    if (m.role === 'user' && m.text) {
+      const title = m.text.trim().replace(/\n/g, ' ').slice(0, 20);
+      return title || '新对话';
+    }
+  }
+  return '新对话';
+}
+function createConversation(title, messages) {
+  const msgs = messages && messages.length ? messages : [];
+  return {
+    id: generateId(),
+    title: title || getConversationTitle(msgs),
+    messages: msgs,
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+}
+function migrateLegacyHistory(username) {
+  try {
+    const legacy = localStorage.getItem(getLegacyChatHistoryKey(username));
+    if (legacy) {
+      const messages = JSON.parse(legacy);
+      if (messages && messages.length) {
+        const conv = createConversation(null, messages);
+        localStorage.setItem(getConversationsKey(username), JSON.stringify([conv]));
+      }
+      localStorage.removeItem(getLegacyChatHistoryKey(username));
+    }
+  } catch(e) {}
+}
+function loadConversations(username) {
+  migrateLegacyHistory(username);
+  try {
+    const data = localStorage.getItem(getConversationsKey(username));
+    if (data) {
+      const list = JSON.parse(data);
+      if (Array.isArray(list) && list.length) return list;
+    }
+  } catch(e) {}
+  return [];
+}
+function saveConversations(username, conversations) {
+  if (!username) return;
+  try {
+    localStorage.setItem(getConversationsKey(username), JSON.stringify(conversations));
+  } catch(e) {}
+}
+function getCurrentConversation() {
+  if (!state.currentConversationId) return null;
+  return state.conversations.find(c => c.id === state.currentConversationId) || null;
+}
+function getCurrentMessages() {
+  const conv = getCurrentConversation();
+  return conv ? conv.messages : [];
+}
+function setCurrentMessages(messages) {
+  const conv = getCurrentConversation();
+  if (!conv) return;
+  conv.messages = messages;
+  conv.updatedAt = Date.now();
+  if (!conv.title || conv.title === '新对话') {
+    conv.title = getConversationTitle(messages);
+  }
+}
+function persistConversations() {
+  const email = getCurrentUser();
+  if (email && state.loggedIn && !state.isDemo) {
+    saveConversations(email, state.conversations);
+  }
+}
+
+/* ============== Conversation Drawer ============== */
+function openDrawer() {
+  $('drawerOverlay').classList.add('show');
+  $('drawer').classList.add('show');
+  renderDrawerList();
+}
+function closeDrawer() {
+  $('drawerOverlay').classList.remove('show');
+  $('drawer').classList.remove('show');
+}
+function toggleDrawer() {
+  if ($('drawer').classList.contains('show')) {
+    closeDrawer();
+  } else {
+    openDrawer();
+  }
+}
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  if (isToday) {
+    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+  }
+  return (d.getMonth() + 1) + '/' + d.getDate();
+}
+function renderDrawerList() {
+  const list = $('drawerList');
+  if (!list) return;
+  if (!state.conversations || state.conversations.length === 0) {
+    list.innerHTML = '<div class="drawer-empty">暂无历史对话</div>';
+    return;
+  }
+  list.innerHTML = '';
+  state.conversations.forEach(conv => {
+    const isActive = conv.id === state.currentConversationId;
+    const item = document.createElement('div');
+    item.className = 'conv-item' + (isActive ? ' active' : '');
+    item.innerHTML = `
+      <div class="conv-icon">🐱</div>
+      <div class="conv-info">
+        <div class="conv-title">${escapeHtml(conv.title || '新对话')}</div>
+        <div class="conv-time">${formatTime(conv.updatedAt || conv.createdAt)} · ${conv.messages ? conv.messages.length : 0} 条消息</div>
+      </div>
+      <button class="conv-delete" title="删除">🗑</button>
+    `;
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('.conv-delete')) return;
+      selectConversation(conv.id);
+    });
+    const delBtn = item.querySelector('.conv-delete');
+    if (delBtn) {
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteConversation(conv.id);
+      });
+    }
+    list.appendChild(item);
+  });
+}
+function selectConversation(id) {
+  const conv = state.conversations.find(c => c.id === id);
+  if (!conv) return;
+  state.currentConversationId = id;
+  const username = getCurrentUser();
+  if (username && state.loggedIn && !state.isDemo) {
+    saveCurrentConversationId(username, id);
+  }
+  if (conv.messages && conv.messages.length > 0) {
+    renderMessages(false);
+  } else {
+    showWelcomeMessage(false);
+  }
+  renderDrawerList();
+  closeDrawer();
+  input.focus();
+}
+function deleteConversation(id) {
+  if (!confirm('确定要删除这个对话吗？')) return;
+  state.conversations = state.conversations.filter(c => c.id !== id);
+  if (state.currentConversationId === id) {
+    if (state.conversations.length > 0) {
+      state.currentConversationId = state.conversations[0].id;
+      selectConversation(state.currentConversationId);
+    } else {
+      state.currentConversationId = null;
+      const conv = createConversation('初始对话');
+      state.conversations = [conv];
+      state.currentConversationId = conv.id;
+      showWelcomeMessage();
+    }
+  } else {
+    persistConversations();
+    renderDrawerList();
+  }
+}
+
+async function callPollinationsAI(messages) {
+  const body = {
+    model: 'openai',
+    messages: [
+      { role: 'system', content: POLLINATIONS_SYSTEM },
+      ...messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }))
+    ],
+    temperature: 0.7,
+    max_tokens: 800
+  };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const resp = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!resp.ok) throw new Error('API error ' + resp.status);
+    const data = await resp.json();
+    const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!content) throw new Error('empty response');
+    return content;
+  } catch(e) {
+    clearTimeout(timeout);
+    throw e;
+  }
+}
+
+const MODELS = {
+  harrycat: { name: 'HarryCat 1.0', desc: '默认·全能对话' },
+  chx5:     { name: 'CHX5', desc: '高速·简洁回答' },
+  nkmik27:  { name: 'Nkmik 2.7', desc: '深度·推理增强' },
+  code:     { name: 'Code', desc: '代码·最独特' }
+};
+
+const MEDICAL_KEYWORDS = /病|药|治疗|症状|医生|医院|癌症|糖尿病|高血压|感冒|发烧|疼痛|处方|手术|感染|病毒|炎症|疾病|患者|诊断|检查|化验|疫苗|保健|养生|健康|医疗|诊所|中药|西药|抗生素|新冠|肺炎|肿瘤|艾滋|心脏病|抑郁症|焦虑症|失眠|过敏|血压|血糖|血脂/;
+const SENSITIVE_KEYWORDS = /习近平|共产党|反动|政变|台独|港独|藏独|疆独|法轮功|六四|天安门|8964|推翻|独裁|专制|抗议示威|颠覆国家|分裂国家|恐怖袭击/;
+
+/* ============== DOM ============== */
+const $ = (id) => document.getElementById(id);
+const chat = $('chat');
+const chatInner = $('chatInner');
+const input = $('input');
+const chips = $('chips');
+
+/* ============== Toast ============== */
+let toastTimer = null;
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ============== Utility ============== */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function autoResize() {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+}
+input.addEventListener('input', autoResize);
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+/* ============== Login Flow ============== */
+function showLoginScreen() {
+  $('loginScreen').style.display = 'flex';
+  $('mainApp').classList.remove('show');
+}
+
+function showMainApp(username) {
+  const user = username ? findUserByUsername(username) : null;
+  $('loginScreen').style.display = 'none';
+  $('mainApp').classList.add('show');
+  state.loggedIn = true;
+  state.loginMethod = username ? (user && user.loginType) || 'username' : 'demo';
+  state.isDemo = !username;
+  state.isAdmin = username ? isAdminUser(username, user) : false;
+
+  if (state.isAdmin) {
+    // 管理员也要加载对话数据，避免退出时覆盖为空
+    if (username) {
+      state.conversations = loadConversations(username);
+      const lastConvId = loadCurrentConversationId(username);
+      if (lastConvId && state.conversations.some(c => c.id === lastConvId)) {
+        state.currentConversationId = lastConvId;
+      } else if (state.conversations.length > 0) {
+        state.currentConversationId = state.conversations[0].id;
+      }
+    }
+    showAdminPanel();
+    return;
+  }
+
+  showChatPanel();
+  if (username) {
+    localStorage.setItem('chunxi_logged_in', '1');
+    localStorage.setItem('chunxi_login_username', username);
+    const displayName = user && user.danzaiName ? user.danzaiName : username;
+    $('userAvatar').textContent = displayName.slice(0, 1).toUpperCase();
+    $('userAvatar').title = '当前账号：' + username + (user && user.email ? ' / ' + user.email : '') + '（点击退出登录）';
+  } else {
+    $('userAvatar').textContent = '我';
+    $('userAvatar').title = '点击登录';
+  }
+  // Hide deploy button for logged-in users
+  $('deployBtn').style.display = username ? 'none' : 'inline-flex';
+  // Load conversations or create initial one
+  if (username) {
+    state.conversations = loadConversations(username);
+  } else {
+    state.conversations = [];
+  }
+  const lastConvId = username ? loadCurrentConversationId(username) : null;
+  const lastConv = lastConvId ? state.conversations.find(c => c.id === lastConvId) : null;
+  if (lastConv) {
+    state.currentConversationId = lastConvId;
+    renderMessages(false);
+  } else if (state.conversations.length > 0) {
+    state.currentConversationId = state.conversations[0].id;
+    renderMessages(false);
+  } else {
+    const conv = createConversation('初始对话');
+    state.conversations = [conv];
+    state.currentConversationId = conv.id;
+    saveCurrentConversationId(username, conv.id);
+    showWelcomeMessage(false);
+  }
+  renderDrawerList();
+  closeDrawer();
+  setTimeout(() => input.focus(), 100);
+}
+
+function showChatPanel() {
+  $('adminPanel').classList.remove('show');
+  document.querySelector('.header').style.display = 'flex';
+  $('chat').style.display = 'block';
+  document.querySelector('.composer-wrap').style.display = 'block';
+}
+
+function showAdminPanel() {
+  $('adminPanel').classList.add('show');
+  document.querySelector('.header').style.display = 'none';
+  $('chat').style.display = 'none';
+  document.querySelector('.composer-wrap').style.display = 'none';
+  renderAdminPanel();
+}
+
+function renderWelcomeIntro() {
+  const div = document.createElement('div');
+  div.className = 'welcome-msg';
+  div.innerHTML = `
+    <div class="av">🐱</div>
+    <div class="bub">
+      <strong>你好～ 我是哈利猫</strong> 🐱<br>
+      接下来开始我们的聊天起程吧！
+    </div>
+  `;
+  return div;
+}
+
+function renderMessages(scrollToBottom) {
+  chatInner.innerHTML = '';
+  // 保留第一句欢迎介绍语
+  chatInner.appendChild(renderWelcomeIntro());
+  const messages = getCurrentMessages();
+  messages.forEach((msg, idx) => appendMessage(msg, idx, true));
+  if (scrollToBottom) {
+    chat.scrollTop = chat.scrollHeight;
+  }
+}
+
+function showWelcomeMessage(saveState = true) {
+  // Ensure there is a current conversation
+  if (!state.currentConversationId || !getCurrentConversation()) {
+    const conv = createConversation('初始对话');
+    state.conversations.unshift(conv);
+    state.currentConversationId = conv.id;
+  }
+  if (saveState) {
+    persistConversations();
+    const username = getCurrentUser();
+    if (username && state.loggedIn && !state.isDemo) {
+      saveCurrentConversationId(username, state.currentConversationId);
+    }
+  }
+  setCurrentMessages([]);
+  renderMessages();
+  renderDrawerList();
+}
+
+function logout() {
+  // 只有当对话数据已加载时才保存，避免管理员退出时覆盖为空
+  if (state.conversations.length > 0) {
+    persistConversations();
+  }
+  localStorage.removeItem('chunxi_logged_in');
+  localStorage.removeItem('chunxi_login_username');
+  localStorage.removeItem('chunxi_login_email');
+  localStorage.removeItem('chunxi_admin_session');
+  state.loggedIn = false;
+  state.loginMethod = null;
+  state.isDemo = false;
+  state.isAdmin = false;
+  state.conversations = [];
+  state.currentConversationId = null;
+  $('adminPanel').classList.remove('show');
+  showChatPanel();
+  $('userAvatar').textContent = '我';
+  $('userAvatar').title = '点击登录';
+  showLoginScreen();
+}
+
+function showLoginPage() {
+  switchAuthTab('login');
+  switchLoginSubTab('username');
+  switchRegisterSubTab('danzai');
+  $('loginUsernameInput').value = '';
+  $('loginEmailInput').value = '';
+  $('loginPasswordInput').value = '';
+  $('danzaiNameInput').value = '';
+  $('kuaishouNameInput').value = '';
+  $('danzaiIdInput').value = '';
+  $('danzaiUsernameInput').value = '';
+  $('danzaiPasswordInput').value = '';
+  $('regEmailInput').value = '';
+  $('regPasswordInput').value = '';
+  $('loginScreen').style.display = 'flex';
+  $('mainApp').classList.remove('show');
+}
+
+function requireLogin(featureName) {
+  if (state.isDemo) {
+    if (featureName) toast('请先登录，再使用' + featureName);
+    showLoginPage();
+    return false;
+  }
+  return true;
+}
+
+$('userAvatar').addEventListener('click', () => {
+  if (state.isDemo) {
+    requireLogin();
+  } else if (confirm('确定要退出登录吗？')) {
+    logout();
+  }
+});
+
+$('skipBtn').addEventListener('click', () => showMainApp(null));
+
+/* ============== Login / Register ============== */
+let authMainTab = 'login'; // 'login' or 'register'
+let loginSubTab = 'username'; // 'username' or 'email'
+let registerSubTab = 'danzai'; // 'danzai' or 'email'
+
+function getUsers() {
+  try {
+    const raw = localStorage.getItem('chunxi_users') || '{}';
+    const users = JSON.parse(raw);
+    return migrateUsers(users);
+  } catch (e) { return {}; }
+}
+
+function migrateUsers(users) {
+  if (!users || typeof users !== 'object') return {};
+  // 检测旧格式：key 是邮箱且对象没有 username 字段
+  const keys = Object.keys(users);
+  const isOldFormat = keys.some(k => k.includes('@') && users[k] && typeof users[k] === 'object' && !users[k].username);
+  if (!isOldFormat && keys.every(k => !users[k] || typeof users[k] !== 'string')) return users;
+
+  const newUsers = {};
+  keys.forEach(key => {
+    const u = users[key];
+    if (typeof u === 'string') {
+      // 旧格式：邮箱 -> 密码字符串
+      newUsers[key] = {
+        password: u,
+        createdAt: Date.now(),
+        email: key,
+        username: key,
+        loginType: 'email',
+        banned: false
+      };
+      migrateConversationsKey(key, key);
+    } else if (typeof u === 'object') {
+      const username = u.username || key;
+      newUsers[username] = {
+        ...u,
+        email: u.email || (key.includes('@') ? key : ''),
+        username: username,
+        loginType: u.loginType || (key.includes('@') ? 'email' : 'danzai'),
+        banned: !!u.banned
+      };
+      if (key !== username) migrateConversationsKey(key, username);
+    }
+  });
+  saveUsers(newUsers);
+  // 迁移登录信息
+  const oldEmail = localStorage.getItem('chunxi_login_email');
+  if (oldEmail && !localStorage.getItem('chunxi_login_username')) {
+    localStorage.setItem('chunxi_login_username', oldEmail);
+  }
+  return newUsers;
+}
+
+function migrateConversationsKey(oldKey, newKey) {
+  try {
+    const oldData = localStorage.getItem(getConversationsKey(oldKey));
+    if (oldData && !localStorage.getItem(getConversationsKey(newKey))) {
+      localStorage.setItem(getConversationsKey(newKey), oldData);
+      localStorage.removeItem(getConversationsKey(oldKey));
+    }
+    const oldLegacy = localStorage.getItem(getLegacyChatHistoryKey(oldKey));
+    if (oldLegacy) {
+      localStorage.removeItem(getLegacyChatHistoryKey(oldKey));
+    }
+  } catch (e) {}
+}
+
+function saveUsers(users) {
+  localStorage.setItem('chunxi_users', JSON.stringify(users));
+}
+
+function findUserByUsername(username) {
+  if (!username) return null;
+  const users = getUsers();
+  return users[username] || null;
+}
+
+function findUserByEmail(email) {
+  if (!email) return null;
+  const users = getUsers();
+  for (const username in users) {
+    if (users[username].email === email) return { username, user: users[username] };
+  }
+  return null;
+}
+
+function ensureAdminAccount() {
+  const users = getUsers();
+  const adminUsername = 'admin';
+  if (!users[adminUsername]) {
+    users[adminUsername] = {
+      password: ADMIN_DEFAULT_PASSWORD,
+      createdAt: Date.now(),
+      email: ADMIN_EMAIL,
+      username: adminUsername,
+      loginType: 'email',
+      isAdmin: true,
+      banned: false
+    };
+    saveUsers(users);
+  }
+}
+
+function isAdminUser(username, user) {
+  if (username === 'admin') return true;
+  return user && user.isAdmin;
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function setLoginSession(username) {
+  localStorage.setItem('chunxi_logged_in', '1');
+  localStorage.setItem('chunxi_login_username', username);
+}
+
+function doLogin(username, user) {
+  if (user.banned) { toast('该账户已被封禁，请联系管理员'); return; }
+  setLoginSession(username);
+  if (isAdminUser(username, user)) {
+    toast('管理员登录成功');
+  } else {
+    toast('登录成功！欢迎使用 CHUNXI 哈利猫');
+  }
+  setTimeout(() => showMainApp(username), 300);
+}
+
+function handleUsernameLogin() {
+  const username = $('loginUsernameInput').value.trim();
+  const password = $('loginPasswordInput').value;
+  if (!username || !password) { toast('请输入用户名和密码'); return; }
+  ensureAdminAccount();
+  const user = findUserByUsername(username);
+  if (!user) { toast('该用户名未注册'); return; }
+  if (user.password !== password) { toast('密码错误'); return; }
+  doLogin(username, user);
+}
+
+function handleEmailLogin() {
+  const email = $('loginEmailInput').value.trim();
+  const password = $('loginPasswordInput').value;
+  if (!email || !password) { toast('请输入邮箱和密码'); return; }
+  if (!isValidEmail(email)) { toast('请输入有效的邮箱地址'); return; }
+  ensureAdminAccount();
+  const found = findUserByEmail(email);
+  if (!found) { toast('该邮箱未注册'); return; }
+  if (found.user.password !== password) { toast('密码错误'); return; }
+  doLogin(found.username, found.user);
+}
+
+function handleDanzaiRegister() {
+  const danzaiName = $('danzaiNameInput').value.trim();
+  const kuaishouName = $('kuaishouNameInput').value.trim();
+  const danzaiId = $('danzaiIdInput').value.trim();
+  const username = $('danzaiUsernameInput').value.trim();
+  const password = $('danzaiPasswordInput').value;
+
+  if (!danzaiName || !kuaishouName || !danzaiId || !username || !password) {
+    toast('请填写所有蛋仔信息'); return;
+  }
+  if (username.length < 3) { toast('用户名至少 3 位'); return; }
+  if (password.length < 6) { toast('密码长度不能少于 6 位'); return; }
+
+  ensureAdminAccount();
+  const users = getUsers();
+  if (users[username]) { toast('该用户名已被使用'); return; }
+  if (findUserByEmail(username)) { toast('该用户名与已有邮箱冲突'); return; }
+
+  users[username] = {
+    password,
+    createdAt: Date.now(),
+    email: '',
+    username,
+    loginType: 'danzai',
+    danzaiName,
+    kuaishouName,
+    danzaiId,
+    banned: false
+  };
+  saveUsers(users);
+  toast('蛋仔注册成功，正在登录…');
+  setLoginSession(username);
+  setTimeout(() => showMainApp(username), 400);
+}
+
+function handleEmailRegister() {
+  const email = $('regEmailInput').value.trim();
+  const password = $('regPasswordInput').value;
+  if (!email || !password) { toast('请输入邮箱和密码'); return; }
+  if (!isValidEmail(email)) { toast('请输入有效的邮箱地址'); return; }
+  if (password.length < 6) { toast('密码长度不能少于 6 位'); return; }
+
+  ensureAdminAccount();
+  const users = getUsers();
+  const found = findUserByEmail(email);
+  if (found) { toast('该邮箱已注册，请直接登录'); return; }
+  if (users[email]) { toast('该用户名已被使用'); return; }
+
+  users[email] = {
+    password,
+    createdAt: Date.now(),
+    email,
+    username: email,
+    loginType: 'email',
+    banned: false
+  };
+  saveUsers(users);
+  toast('邮箱注册成功，正在登录…');
+  setLoginSession(email);
+  setTimeout(() => showMainApp(email), 400);
+}
+
+function switchAuthTab(tab) {
+  authMainTab = tab;
+  $('tabLogin').classList.toggle('active', tab === 'login');
+  $('tabRegister').classList.toggle('active', tab === 'register');
+  $('loginPanel').style.display = tab === 'login' ? 'block' : 'none';
+  $('registerPanel').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function switchLoginSubTab(subtab) {
+  loginSubTab = subtab;
+  $('subtabUsernameLogin').classList.toggle('active', subtab === 'username');
+  $('subtabEmailLogin').classList.toggle('active', subtab === 'email');
+  $('loginUsernameInput').style.display = subtab === 'username' ? 'block' : 'none';
+  $('loginEmailInput').style.display = subtab === 'email' ? 'block' : 'none';
+  $('loginBtnText').textContent = subtab === 'username' ? '用户名登录' : '邮箱登录';
+}
+
+function switchRegisterSubTab(subtab) {
+  registerSubTab = subtab;
+  $('subtabDanzaiReg').classList.toggle('active', subtab === 'danzai');
+  $('subtabEmailReg').classList.toggle('active', subtab === 'email');
+  $('danzaiRegForm').style.display = subtab === 'danzai' ? 'block' : 'none';
+  $('emailRegForm').style.display = subtab === 'email' ? 'block' : 'none';
+}
+
+// Event listeners
+$('tabLogin').addEventListener('click', () => switchAuthTab('login'));
+$('tabRegister').addEventListener('click', () => switchAuthTab('register'));
+$('subtabUsernameLogin').addEventListener('click', () => switchLoginSubTab('username'));
+$('subtabEmailLogin').addEventListener('click', () => switchLoginSubTab('email'));
+$('subtabDanzaiReg').addEventListener('click', () => switchRegisterSubTab('danzai'));
+$('subtabEmailReg').addEventListener('click', () => switchRegisterSubTab('email'));
+
+$('loginBtn').addEventListener('click', () => {
+  if (loginSubTab === 'username') handleUsernameLogin();
+  else handleEmailLogin();
+});
+$('loginPasswordInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (loginSubTab === 'username') handleUsernameLogin();
+    else handleEmailLogin();
+  }
+});
+$('danzaiRegBtn').addEventListener('click', handleDanzaiRegister);
+$('emailRegBtn').addEventListener('click', handleEmailRegister);
+
+// Auto-login if previously logged in
+window.addEventListener('load', () => {
+  ensureAdminAccount();
+  if (localStorage.getItem('chunxi_logged_in')) {
+    const username = localStorage.getItem('chunxi_login_username') || localStorage.getItem('chunxi_login_email') || '';
+    showMainApp(username);
+  }
+});
+
+/* ============== Admin Panel ============== */
+function formatDate(ts) {
+  if (!ts) return '-';
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
+function renderAdminPanel() {
+  renderAdminStats();
+  renderAdminUserTable();
+}
+
+function renderAdminStats() {
+  const users = getUsers();
+  const emails = Object.keys(users);
+  const total = emails.length;
+  const banned = emails.filter(e => users[e].banned).length;
+  let totalConvs = 0;
+  emails.forEach(e => {
+    try {
+      const data = localStorage.getItem(getConversationsKey(e));
+      if (data) {
+        const list = JSON.parse(data);
+        if (Array.isArray(list)) totalConvs += list.length;
+      }
+    } catch (err) {}
+  });
+  $('adminStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">总账户</div></div>
+    <div class="stat-card"><div class="stat-num">${banned}</div><div class="stat-label">已封禁</div></div>
+    <div class="stat-card"><div class="stat-num">${total - banned}</div><div class="stat-label">正常账户</div></div>
+    <div class="stat-card"><div class="stat-num">${totalConvs}</div><div class="stat-label">历史对话</div></div>
+  `;
+}
+
+function renderAdminUserTable() {
+  const users = getUsers();
+  const tbody = $('adminUserTbody');
+  tbody.innerHTML = '';
+  const usernames = Object.keys(users).sort((a, b) => (users[b].createdAt || 0) - (users[a].createdAt || 0));
+  if (usernames.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:24px;">暂无账户</td></tr>';
+    return;
+  }
+  usernames.forEach(username => {
+    const u = users[username];
+    const isAdmin = isAdminUser(username, u);
+    const isBanned = !!u.banned;
+    let statusHtml = '';
+    if (isAdmin) {
+      statusHtml = '<span class="status-tag status-admin">管理员</span>';
+    } else if (isBanned) {
+      statusHtml = '<span class="status-tag status-banned">已封禁</span>';
+    } else {
+      statusHtml = '<span class="status-tag status-normal">正常</span>';
+    }
+    let extraInfo = '';
+    if (u.loginType === 'danzai') {
+      extraInfo = `<br><small style="color:var(--text-3)">蛋仔：${escapeHtml(u.danzaiName || '-')} · 快手：${escapeHtml(u.kuaishouName || '-')} · 编号：${escapeHtml(u.danzaiId || '-')}</small>`;
+    } else if (u.email) {
+      extraInfo = `<br><small style="color:var(--text-3)">邮箱：${escapeHtml(u.email)}</small>`;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div>${escapeHtml(username)}${extraInfo}</div>
+      </td>
+      <td>${formatDate(u.createdAt)}</td>
+      <td>${statusHtml}</td>
+      <td>
+        <div class="admin-actions">
+          ${isAdmin ? '' : (isBanned
+            ? `<button class="unban" data-user="${escapeHtml(username)}" data-act="unban">解封</button>`
+            : `<button class="ban" data-user="${escapeHtml(username)}" data-act="ban">封禁</button>`)}
+          <button data-user="${escapeHtml(username)}" data-act="reset">重置密码</button>
+          ${isAdmin ? '' : `<button class="danger" data-user="${escapeHtml(username)}" data-act="delete">删除</button>`}
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button[data-act]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const username = btn.dataset.user;
+      const act = btn.dataset.act;
+      if (act === 'ban') adminBanUser(username);
+      else if (act === 'unban') adminUnbanUser(username);
+      else if (act === 'delete') adminDeleteUser(username);
+      else if (act === 'reset') adminResetPassword(username);
+    });
+  });
+}
+
+function adminAddUser() {
+  const email = $('adminNewEmail').value.trim();
+  const password = $('adminNewPassword').value;
+  if (!email || !password) { toast('请输入邮箱和密码'); return; }
+  if (!isValidEmail(email)) { toast('请输入有效的邮箱地址'); return; }
+  if (password.length < 6) { toast('密码长度不能少于 6 位'); return; }
+  const users = getUsers();
+  if (findUserByEmail(email)) { toast('该邮箱已存在'); return; }
+  if (users[email]) { toast('该用户名已被使用'); return; }
+  users[email] = {
+    password,
+    createdAt: Date.now(),
+    email,
+    username: email,
+    loginType: 'email',
+    banned: false
+  };
+  saveUsers(users);
+  $('adminNewEmail').value = '';
+  $('adminNewPassword').value = '';
+  renderAdminPanel();
+  toast('账户添加成功');
+}
+
+function adminBanUser(username) {
+  if (!confirm(`确定封禁账户 ${username} 吗？`)) return;
+  const users = getUsers();
+  if (users[username]) {
+    users[username].banned = true;
+    saveUsers(users);
+    renderAdminPanel();
+    toast(`已封禁 ${username}`);
+  }
+}
+
+function adminUnbanUser(username) {
+  const users = getUsers();
+  if (users[username]) {
+    users[username].banned = false;
+    saveUsers(users);
+    renderAdminPanel();
+    toast(`已解封 ${username}`);
+  }
+}
+
+function adminDeleteUser(username) {
+  if (!confirm(`确定删除账户 ${username} 吗？该账户的对话记录也会被清除。`)) return;
+  const users = getUsers();
+  delete users[username];
+  saveUsers(users);
+  localStorage.removeItem(getConversationsKey(username));
+  renderAdminPanel();
+  toast(`已删除 ${username}`);
+}
+
+function adminResetPassword(username) {
+  const newPwd = prompt(`请输入 ${username} 的新密码（不少于 6 位）：`);
+  if (!newPwd) return;
+  if (newPwd.length < 6) { toast('密码长度不能少于 6 位'); return; }
+  const users = getUsers();
+  if (users[username]) {
+    users[username].password = newPwd;
+    saveUsers(users);
+    toast('密码重置成功');
+  }
+}
+
+/* ============== Send button ============== */
+$('sendBtn').addEventListener('click', sendMessage);
+
+/* ============== Drawer ============== */
+$('menuBtn').addEventListener('click', toggleDrawer);
+$('drawerClose').addEventListener('click', closeDrawer);
+$('drawerOverlay').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDrawer();
+});
+$('drawerNewChat').addEventListener('click', () => {
+  startNewConversation();
+  closeDrawer();
+  toast('已开启新对话');
+});
+
+/* ============== Admin Panel Events ============== */
+$('adminAddUser').addEventListener('click', adminAddUser);
+$('adminNewPassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') adminAddUser();
+});
+$('adminLogout').addEventListener('click', () => {
+  logout();
+});
+
+/* ============== Plus button + menu ============== */
+const plusBtn = $('plusBtn');
+const plusMenu = $('plusMenu');
+plusBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const show = plusMenu.classList.toggle('show');
+  plusBtn.classList.toggle('active', show);
+  $('modelMenu').classList.remove('show');
+});
+
+document.querySelectorAll('.plus-menu-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    const action = item.dataset.action;
+    plusMenu.classList.remove('show');
+    plusBtn.classList.remove('active');
+    if (action === 'send-image' || action === 'camera') {
+      if (!requireLogin(action === 'send-image' ? '图片识别' : '拍照识别')) {
+        e.preventDefault();
+        return;
+      }
+      return;
+    }
+    handleAction(action);
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (!plusMenu.contains(e.target) && e.target !== plusBtn) {
+    plusMenu.classList.remove('show');
+    plusBtn.classList.remove('active');
+  }
+  if (!$('modelMenu').contains(e.target) && e.target !== $('modelBtn')) {
+    $('modelMenu').classList.remove('show');
+  }
+});
+
+function handleAction(action) {
+  if (action === 'image-gen') {
+    if (!requireLogin('图像生成')) return;
+    state.mode = 'image-gen';
+    renderChips();
+    input.placeholder = '描述你想要生成的图像...';
+    input.focus();
+  } else if (action === 'video-gen') {
+    if (!requireLogin('视频生成')) return;
+    state.mode = 'video-gen';
+    renderChips();
+    input.placeholder = '描述你想要生成的视频画面...';
+    input.focus();
+  }
+}
+
+/* ============== Model menu ============== */
+const modelBtn = $('modelBtn');
+const modelMenu = $('modelMenu');
+const modelLabel = $('modelLabel');
+modelBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const show = modelMenu.classList.toggle('show');
+  plusMenu.classList.remove('show');
+  plusBtn.classList.remove('active');
+});
+document.querySelectorAll('.model-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const m = item.dataset.model;
+    state.model = m;
+    modelLabel.textContent = MODELS[m].name;
+    document.querySelectorAll('.model-item').forEach(x => x.classList.remove('active'));
+    item.classList.add('active');
+    modelMenu.classList.remove('show');
+    toast('已切换到 ' + MODELS[m].name);
+  });
+});
+
+/* ============== File inputs ============== */
+$('fileInput').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (f) attachImage(f);
+  e.target.value = '';
+});
+$('cameraInput').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (f) attachImage(f);
+  e.target.value = '';
+});
+
+function attachImage(file) {
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    state.pendingImages.push({ name: file.name, data: ev.target.result });
+    renderChips();
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderChips() {
+  chips.innerHTML = '';
+  if (state.mode !== 'chat') {
+    const hint = document.createElement('div');
+    hint.className = 'mode-hint';
+    const modeText = state.mode === 'image-gen' ? '✨ 图像生成模式' : '🎬 视频生成模式';
+    hint.innerHTML = `<span>${modeText}</span><span class="mh-x" id="exitMode">✕</span>`;
+    chips.appendChild(hint);
+    $('exitMode').addEventListener('click', () => {
+      state.mode = 'chat';
+      input.placeholder = '发消息或上传文件给 CHUNXI 哈利猫...';
+      renderChips();
+    });
+  }
+  state.pendingImages.forEach((img, i) => {
+    const c = document.createElement('div');
+    c.className = 'img-chip';
+    c.innerHTML = `<img src="${img.data}"><span class="ic-name">${escapeHtml(img.name)}</span><button class="ic-remove" data-i="${i}">✕</button>`;
+    chips.appendChild(c);
+  });
+  document.querySelectorAll('.ic-remove').forEach(b => {
+    b.addEventListener('click', (e) => {
+      const i = parseInt(e.target.dataset.i);
+      state.pendingImages.splice(i, 1);
+      renderChips();
+    });
+  });
+}
+
+/* ============== Voice ============== */
+const voiceOverlay = $('voiceOverlay');
+$('voiceBtn').addEventListener('click', () => {
+  voiceOverlay.classList.add('show');
+  startVoice();
+});
+$('voiceCancel').addEventListener('click', stopVoice);
+
+function startVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    toast('当前浏览器不支持语音识别');
+    setTimeout(stopVoice, 1200);
+    return;
+  }
+  const rec = new SR();
+  rec.lang = 'zh-CN';
+  rec.continuous = false;
+  rec.interimResults = false;
+  rec.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    input.value = text;
+    autoResize();
+  };
+  rec.onerror = () => { stopVoice(); toast('识别失败'); };
+  rec.onend = () => stopVoice();
+  state.voice = rec;
+  try { rec.start(); } catch (e) { stopVoice(); }
+}
+function stopVoice() {
+  voiceOverlay.classList.remove('show');
+  if (state.voice) { try { state.voice.stop(); } catch(e){} state.voice = null; }
+}
+
+/* ============== New chat ============== */
+function startNewConversation() {
+  state.pendingImages = [];
+  state.mode = 'chat';
+  renderChips();
+  input.placeholder = '发消息或上传文件给 CHUNXI 哈利猫...';
+  input.value = '';
+  autoResize();
+  const conv = createConversation('新对话');
+  state.conversations.unshift(conv);
+  state.currentConversationId = conv.id;
+  const username = getCurrentUser();
+  if (username && state.loggedIn && !state.isDemo) {
+    saveCurrentConversationId(username, conv.id);
+  }
+  showWelcomeMessage();
+  persistConversations();
+  renderDrawerList();
+}
+
+$('newChatBtn').addEventListener('click', () => {
+  startNewConversation();
+  toast('已开启新对话');
+});
+
+/* ============== Deep think & web ============== */
+$('deepBtn').addEventListener('click', () => {
+  state.deepThink = !state.deepThink;
+  $('deepBtn').classList.toggle('active', state.deepThink);
+  toast('深度思考: ' + (state.deepThink ? '开' : '关'));
+});
+$('webBtn').addEventListener('click', () => {
+  state.web = !state.web;
+  $('webBtn').classList.toggle('active', state.web);
+  toast('联网搜索: ' + (state.web ? '开' : '关'));
+});
+
+/* ============== Send message ============== */
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text && state.pendingImages.length === 0) return;
+  if (state.isTyping) return;
+  if (state.isDemo && (state.mode === 'image-gen' || state.mode === 'video-gen')) {
+    requireLogin(state.mode === 'image-gen' ? '图像生成' : '视频生成');
+    return;
+  }
+
+  // Ensure there is a current conversation
+  if (!state.currentConversationId || !getCurrentConversation()) {
+    const conv = createConversation();
+    state.conversations.unshift(conv);
+    state.currentConversationId = conv.id;
+  }
+
+  // Filter check (only for chat mode)
+  if (state.mode === 'chat' && text) {
+    if (SENSITIVE_KEYWORDS.test(text)) {
+      const messages = getCurrentMessages();
+      const userMsg = { role: 'user', text, images: [...state.pendingImages] };
+      messages.push(userMsg);
+      setCurrentMessages(messages);
+      appendMessage(userMsg, messages.length - 1);
+      input.value = ''; state.pendingImages = []; autoResize();
+      showTyping();
+      await new Promise(r => setTimeout(r, 600));
+      hideTyping();
+      const aiResp = { role: 'ai', text: '当前问题有点敏感哦～我们可以聊点别的 😊' };
+      messages.push(aiResp);
+      setCurrentMessages(messages);
+      appendMessage(aiResp, messages.length - 1);
+      persistConversations();
+      renderDrawerList();
+      return;
+    }
+    if (MEDICAL_KEYWORDS.test(text)) {
+      const messages = getCurrentMessages();
+      const userMsg = { role: 'user', text, images: [...state.pendingImages] };
+      messages.push(userMsg);
+      setCurrentMessages(messages);
+      appendMessage(userMsg, messages.length - 1);
+      input.value = ''; state.pendingImages = []; autoResize();
+      showTyping();
+      await new Promise(r => setTimeout(r, 800));
+      hideTyping();
+      const medResp = `⚠️ **医疗免责声明**\n\n非专业人士科普，如有需要，请线下寻找专业人士。\n\n---\n\n关于你提到的「${escapeHtml(text)}」，以下是一般性科普信息（**不构成医疗建议**）：\n\n${generateMedicalHint(text)}\n\n> 💡 提醒：以上内容由 AI 整理，不能替代专业医生的诊断与治疗。如有不适请及时就医。`;
+      const aiResp = { role: 'ai', text: medResp };
+      messages.push(aiResp);
+      setCurrentMessages(messages);
+      appendMessage(aiResp, messages.length - 1);
+      persistConversations();
+      renderDrawerList();
+      return;
+    }
+  }
+
+  const userMsg = {
+    role: 'user',
+    text: text,
+    images: [...state.pendingImages],
+    mode: state.mode
+  };
+  let messages = getCurrentMessages();
+  messages.push(userMsg);
+  setCurrentMessages(messages);
+  appendMessage(userMsg, messages.length - 1);
+
+  input.value = '';
+  state.pendingImages = [];
+  const wasVideoMode = state.mode === 'video-gen';
+  state.mode = 'chat';
+  renderChips();
+  input.placeholder = '发消息或上传文件给 CHUNXI 哈利猫...';
+  autoResize();
+
+  persistConversations();
+  renderDrawerList();
+
+  if (wasVideoMode) {
+    // 视频生成：先显示占位，后台异步生成，生成完成后替换
+    const placeholder = {
+      role: 'ai',
+      type: 'video',
+      text: `🎬 正在生成视频：${text}\n\n请耐心等待，预计需要 30 秒到几分钟…`,
+      videoHtml: '',
+      generating: true
+    };
+    messages = getCurrentMessages();
+    messages.push(placeholder);
+    setCurrentMessages(messages);
+    appendMessage(placeholder, messages.length - 1);
+    persistConversations();
+    renderDrawerList();
+
+    generateVideoResponse(userMsg).then(aiResponse => {
+      const currentMessages = getCurrentMessages();
+      const idx = currentMessages.findIndex(m => m.generating);
+      if (idx >= 0) {
+        currentMessages[idx] = aiResponse;
+        setCurrentMessages(currentMessages);
+        renderMessages();
+        persistConversations();
+        renderDrawerList();
+      }
+    }).catch(err => {
+      const currentMessages = getCurrentMessages();
+      const idx = currentMessages.findIndex(m => m.generating);
+      if (idx >= 0) {
+        currentMessages[idx] = {
+          role: 'ai',
+          type: 'video',
+          text: `🎬 视频生成失败：${text}\n\n错误信息：${escapeHtml(err.message || '未知错误')}\n\n请检查网络连接或稍后重试。`,
+          videoHtml: ''
+        };
+        setCurrentMessages(currentMessages);
+        renderMessages();
+        persistConversations();
+        renderDrawerList();
+      }
+    });
+    return;
+  }
+
+  showTyping();
+  const aiResponse = await buildAIResponse(userMsg);
+  hideTyping();
+  messages = getCurrentMessages();
+  messages.push(aiResponse);
+  setCurrentMessages(messages);
+  appendMessage(aiResponse, messages.length - 1);
+  persistConversations();
+  renderDrawerList();
+}
+
+async function buildAIResponse(userMsg) {
+  let aiResponse;
+  if (userMsg.mode === 'image-gen') {
+    aiResponse = await generateImageResponse(userMsg);
+  } else if (userMsg.mode === 'video-gen') {
+    aiResponse = await generateVideoResponse(userMsg);
+  } else if (state.model === 'code') {
+    await new Promise(r => setTimeout(r, 800 + Math.random() * 800));
+    aiResponse = generateCodeResponse(userMsg);
+  } else {
+    // 先尝试本地直接答案（数学、知识库等），命中则不再调用 API
+    const localAnswer = tryDirectAnswer(userMsg);
+    if (localAnswer) {
+      aiResponse = localAnswer;
+    } else {
+      // 未命中则调用真实 AI API，失败时回退到本地兜底
+      try {
+        const apiText = await callPollinationsAI(getCurrentMessages());
+        aiResponse = { role: 'ai', text: apiText };
+      } catch(e) {
+        await new Promise(r => setTimeout(r, 400));
+        aiResponse = generateChatResponse(userMsg);
+      }
+    }
+  }
+  return aiResponse;
+}
+
+async function regenerateResponse(aiIndex) {
+  const messages = getCurrentMessages();
+  // Find the last user message before this AI message
+  let userIndex = -1;
+  for (let i = aiIndex - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') {
+      userIndex = i;
+      break;
+    }
+  }
+  if (userIndex === -1) {
+    toast('没有对应的问题，无法重新生成');
+    return;
+  }
+
+  const userMsg = messages[userIndex];
+
+  // Remove this AI message and all messages after it
+  const newMessages = messages.slice(0, aiIndex);
+  setCurrentMessages(newMessages);
+  renderMessages();
+  persistConversations();
+
+  toast('正在重新生成…');
+  showTyping();
+  const aiResponse = await buildAIResponse(userMsg);
+  hideTyping();
+  newMessages.push(aiResponse);
+  setCurrentMessages(newMessages);
+  appendMessage(aiResponse, newMessages.length - 1);
+  persistConversations();
+  renderDrawerList();
+}
+
+function generateMedicalHint(text) {
+  // Generic safe medical disclaimer
+  return `保持健康的一般建议：\n\n- 规律作息，保证充足睡眠\n- 均衡饮食，多摄入蔬果\n- 适度运动，增强体质\n- 定期体检，及时发现健康问题\n- 保持良好心态\n\n如果症状持续或加重，**请务必前往医院就诊**。`;
+}
+
+/* ============== Append messages ============== */
+function appendMessage(msg, index, skipScroll) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + msg.role;
+  const av = `<div class="av">${msg.role === 'ai' ? '🐱' : '👤'}</div>`;
+  const bub = `<div class="bub">${formatBubble(msg)}</div>`;
+  div.innerHTML = av + bub;
+
+  if (msg.role === 'ai' && msg.actions !== false) {
+    const actions = document.createElement('div');
+    actions.className = 'msg-actions';
+    actions.innerHTML = `
+      <button class="msg-action" data-act="copy">📋 复制</button>
+      <button class="msg-action" data-act="regen">🔄 重新生成</button>
+      <button class="msg-action" data-act="like">👍 赞</button>
+    `;
+    div.appendChild(actions);
+    actions.querySelectorAll('.msg-action').forEach(b => {
+      b.addEventListener('click', () => {
+        const a = b.dataset.act;
+        if (a === 'copy') {
+          navigator.clipboard.writeText(msg.text || '').then(() => toast('已复制'));
+        } else if (a === 'regen') {
+          if (typeof index === 'number') {
+            regenerateResponse(index);
+          } else {
+            div.remove();
+          }
+        } else if (a === 'like') {
+          b.style.color = 'var(--accent)';
+          toast('感谢反馈 ✨');
+        }
+      });
+    });
+  }
+  chatInner.appendChild(div);
+  if (!skipScroll) chat.scrollTop = chat.scrollHeight;
+}
+
+function formatBubble(msg) {
+  if (msg.type === 'image') {
+    const imgSrc = extractImageSrc(msg.imageHtml) || '';
+    return `<div>${escapeHtml(msg.text)}</div>
+      <div class="gen-image-wrap" style="cursor:pointer" onclick="openImageLightbox('${escapeHtml(imgSrc)}')">
+        ${msg.imageHtml}
+        <div class="gen-watermark">春熙哈利猫AI生成</div>
+      </div>`;
+  }
+  if (msg.type === 'video') {
+    return `<div>${escapeHtml(msg.text)}</div>
+      <div class="gen-video-wrap">
+        ${msg.videoHtml || '<div class="gen-video-placeholder">🎬 视频生成中…</div>'}
+      </div>`;
+  }
+  return renderMarkdown(msg.text || '');
+}
+
+function extractImageSrc(html) {
+  if (!html) return '';
+  const m = html.match(/src="([^"]+)"/);
+  return m ? m[1] : '';
+}
+
+function renderMarkdown(text) {
+  if (!text) return '';
+  // 1. Extract fenced code blocks first
+  const codeBlocks = [];
+  let html = text.replace(/```(\w*)\n([\s\S]*?)```/g, (m, lang, code) => {
+    codeBlocks.push({ lang, code });
+    return `\n___CB_${codeBlocks.length - 1}___\n`;
+  });
+  // 2. Escape HTML
+  html = escapeHtml(html);
+  // 3. Restore code block placeholders (un-escaped)
+  // We need a different placeholder since escapeHtml would escape underscores too
+  // Actually since we already escaped, let's use a marker that survives escaping
+  // Better: re-extract and replace BEFORE escaping
+  return html;
+}
+
+// Simpler, more robust markdown renderer
+function md(text) {
+  if (!text) return '';
+  // 1. Pull out code blocks to placeholders
+  const codeBlocks = [];
+  let s = text.replace(/```([a-zA-Z0-9]*)\n([\s\S]*?)```/g, (m, lang, code) => {
+    const i = codeBlocks.length;
+    codeBlocks.push({ lang, code });
+    return `CB${i}`;
+  });
+  // 2. Escape HTML
+  s = escapeHtml(s);
+  // 3. Inline code
+  s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  // 4. Bold
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // 5. Italic
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  // 6. Headings
+  s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  s = s.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  s = s.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  // 7. Links
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // 8. Lists (simple)
+  s = s.replace(/(^|\n)((?:- .+(?:\n|$))+)/g, (m, pre, list) => {
+    const items = list.trim().split('\n').map(l => `<li>${l.replace(/^- /, '')}</li>`).join('');
+    return `${pre}<ul>${items}</ul>`;
+  });
+  s = s.replace(/(^|\n)((?:\d+\. .+(?:\n|$))+)/g, (m, pre, list) => {
+    const items = list.trim().split('\n').map(l => `<li>${l.replace(/^\d+\. /, '')}</li>`).join('');
+    return `${pre}<ol>${items}</ol>`;
+  });
+  // 9. Restore code blocks
+  s = s.replace(/CB(\d+)/g, (m, i) => {
+    const b = codeBlocks[parseInt(i)];
+    return `<pre><button class="copy-code-btn">复制</button><code class="language-${escapeHtml(b.lang || '')}">${escapeHtml(b.code)}</code></pre>`;
+  });
+  // 10. Paragraphs & line breaks
+  s = s.split(/\n{2,}/).map(p => {
+    if (/^<(h\d|ul|ol|pre|blockquote)/.test(p.trim())) return p;
+    if (p.trim() === '') return '';
+    return '<p>' + p.replace(/\n/g, '<br>') + '</p>';
+  }).join('\n');
+  return s;
+}
+
+// Reassign renderMarkdown
+renderMarkdown = md;
+
+window.copyCode = function(btn) {
+  const code = btn.parentElement.querySelector('code').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已复制';
+    setTimeout(() => btn.textContent = '复制', 1500);
+  });
+};
+
+/* ============== Typing indicator ============== */
+let typingEl = null;
+function showTyping() {
+  state.isTyping = true;
+  typingEl = document.createElement('div');
+  typingEl.className = 'msg ai';
+  typingEl.innerHTML = `<div class="av">🐱</div><div class="bub"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  chatInner.appendChild(typingEl);
+  chat.scrollTop = chat.scrollHeight;
+}
+function hideTyping() {
+  state.isTyping = false;
+  if (typingEl) typingEl.remove();
+  typingEl = null;
+}
+
+/* ============== AI response generators ============== */
+function extractKeyword(text, prefixes) {
+  for (const p of prefixes) {
+    const idx = text.toLowerCase().indexOf(p.toLowerCase());
+    if (idx !== -1) {
+      let k = text.slice(idx + p.length).trim();
+      k = k.replace(/[?？。！!\s]+$/, '').trim();
+      if (k) return k.slice(0, 30);
+    }
+  }
+  return '';
+}
+
+const DIRECT_ANSWERS = [
+  // 中国地理
+  { keys: [/安徽\s*(?:属于|在)|安徽\s*哪里|安徽省会/], ans: '安徽省位于中国东部，属于华东地区。省会是合肥市。安徽东邻江苏、浙江，南接江西，西连湖北、河南，北靠山东。' },
+  { keys: [/中国首都是?哪里|首都是?哪里|北京是什么|北京属于哪里/], ans: '中国的首都是北京市。北京是中华人民共和国的政治中心、文化中心、国际交往中心、科技创新中心。' },
+  { keys: [/上海属于哪里|上海在哪里|上海是什么地方/], ans: '上海市位于中国东部，长江入海口，是中国直辖市之一，也是中国的经济、金融、贸易、航运和科技创新中心。' },
+  { keys: [/广东属于哪里|广东在哪里|广东省会/], ans: '广东省位于中国南部，属于华南地区。省会是广州市，深圳是经济特区。' },
+  { keys: [/四川属于哪里|四川在哪里|四川省会/], ans: '四川省位于中国西南部。省会是成都市，简称“川”或“蜀”。' },
+  { keys: [/浙江属于哪里|浙江在哪里|浙江省会/], ans: '浙江省位于中国东南沿海，属于华东地区。省会是杭州市。' },
+  { keys: [/江苏属于哪里|江苏在哪里|江苏省会/], ans: '江苏省位于中国东部沿海，属于华东地区。省会是南京市。' },
+  { keys: [/河南属于哪里|河南在哪里|河南省会/], ans: '河南省位于中国中部，属于华中地区。省会是郑州市，简称“豫”。' },
+  { keys: [/湖北属于哪里|湖北在哪里|湖北省会/], ans: '湖北省位于中国中部，属于华中地区。省会是武汉市，简称“鄂”。' },
+  { keys: [/湖南属于哪里|湖南在哪里|湖南省会/], ans: '湖南省位于中国中南部，属于华中地区。省会是长沙市，简称“湘”。' },
+  { keys: [/山东属于哪里|山东在哪里|山东省会/], ans: '山东省位于中国东部沿海，属于华东地区。省会是济南市，简称“鲁”。' },
+  { keys: [/山西属于哪里|山西在哪里|山西省会/], ans: '山西省位于中国华北地区。省会是太原市，简称“晋”。' },
+  { keys: [/陕西属于哪里|陕西在哪里|陕西省会/], ans: '陕西省位于中国西北地区。省会是西安市，简称“陕”或“秦”。' },
+  { keys: [/福建属于哪里|福建在哪里|福建省会/], ans: '福建省位于中国东南沿海，属于华东地区。省会是福州市，厦门是经济特区。' },
+  { keys: [/江西属于哪里|江西在哪里|江西省会/], ans: '江西省位于中国东南部，属于华东地区。省会是南昌市，简称“赣”。' },
+  { keys: [/云南属于哪里|云南在哪里|云南省会/], ans: '云南省位于中国西南部。省会是昆明市，简称“云”或“滇”。' },
+  { keys: [/贵州属于哪里|贵州在哪里|贵州省会/], ans: '贵州省位于中国西南部。省会是贵阳市，简称“贵”或“黔”。' },
+  { keys: [/广西属于哪里|广西在哪里|广西省会/], ans: '广西壮族自治区位于中国南部沿海。首府是南宁市，简称“桂”。' },
+  { keys: [/内蒙古属于哪里|内蒙古在哪里|内蒙古首府/], ans: '内蒙古自治区位于中国北部边疆。首府是呼和浩特市，简称“内蒙古”。' },
+  { keys: [/新疆属于哪里|新疆在哪里|新疆首府/], ans: '新疆维吾尔自治区位于中国西北部。首府是乌鲁木齐市，简称“新”。' },
+  { keys: [/西藏属于哪里|西藏在哪里|西藏首府/], ans: '西藏自治区位于中国西南边陲。首府是拉萨市，简称“藏”。' },
+  { keys: [/宁夏属于哪里|宁夏在哪里|宁夏首府/], ans: '宁夏回族自治区位于中国西北部。首府是银川市，简称“宁”。' },
+  { keys: [/甘肃属于哪里|甘肃在哪里|甘肃省会/], ans: '甘肃省位于中国西北部。省会是兰州市，简称“甘”或“陇”。' },
+  { keys: [/青海属于哪里|青海在哪里|青海省会/], ans: '青海省位于中国西北部。省会是西宁市，简称“青”。' },
+  { keys: [/海南属于哪里|海南在哪里|海南省会/], ans: '海南省位于中国最南端。省会是海口市，三亚是著名旅游城市。' },
+  { keys: [/黑龙江属于哪里|黑龙江在哪里|黑龙江省会/], ans: '黑龙江省位于中国东北部。省会是哈尔滨市，简称“黑”。' },
+  { keys: [/吉林属于哪里|吉林在哪里|吉林省会/], ans: '吉林省位于中国东北部。省会是长春市，简称“吉”。' },
+  { keys: [/辽宁属于哪里|辽宁在哪里|辽宁省会/], ans: '辽宁省位于中国东北部。省会是沈阳市，简称“辽”。' },
+  { keys: [/河北属于哪里|河北在哪里|河北省会/], ans: '河北省位于中国华北地区，环绕北京、天津。省会是石家庄市，简称“冀”。' },
+  { keys: [/天津属于哪里|天津在哪里|天津是什么/], ans: '天津市位于中国华北地区，是中国直辖市之一，北方重要的港口城市和工业基地。' },
+  { keys: [/重庆属于哪里|重庆在哪里|重庆是什么/], ans: '重庆市位于中国西南部，是中国直辖市之一，简称“渝”。' },
+  { keys: [/香港属于哪里|香港在哪里/], ans: '香港特别行政区位于中国南部、珠江口东侧，是国际金融、贸易和航运中心。' },
+  { keys: [/澳门属于哪里|澳门在哪里/], ans: '澳门特别行政区位于中国南部、珠江口西侧，是世界旅游休闲中心。' },
+  { keys: [/台湾属于哪里|台湾在哪里/], ans: '台湾省位于中国东南沿海的大陆架上，是中国不可分割的一部分。' },
+
+  // 简单数学
+  { keys: [/1\+1|一加一/], ans: '1 + 1 = 2' },
+  { keys: [/2\+2|二加二/], ans: '2 + 2 = 4' },
+  { keys: [/3\+3|三加三/], ans: '3 + 3 = 6' },
+  { keys: [/4\+4|四加四/], ans: '4 + 4 = 8' },
+  { keys: [/5\+5|五加五/], ans: '5 + 5 = 10' },
+  { keys: [/6\+6|六加六/], ans: '6 + 6 = 12' },
+  { keys: [/7\+7|七加七/], ans: '7 + 7 = 14' },
+  { keys: [/8\+8|八加八/], ans: '8 + 8 = 16' },
+  { keys: [/9\+9|九加九/], ans: '9 + 9 = 18' },
+  { keys: [/10\+10|十加十/], ans: '10 + 10 = 20' },
+  { keys: [/2\*2|二乘二|2×2/], ans: '2 × 2 = 4' },
+  { keys: [/3\*3|三乘三|3×3/], ans: '3 × 3 = 9' },
+  { keys: [/4\*4|四乘四|4×4/], ans: '4 × 4 = 16' },
+  { keys: [/5\*5|五乘五|5×5/], ans: '5 × 5 = 25' },
+  { keys: [/6\*6|六乘六|6×6/], ans: '6 × 6 = 36' },
+  { keys: [/7\*7|七乘七|7×7/], ans: '7 × 7 = 49' },
+  { keys: [/8\*8|八乘八|8×8/], ans: '8 × 8 = 64' },
+  { keys: [/9\*9|九乘九|9×9/], ans: '9 × 9 = 81' },
+  { keys: [/圆周率|π|pi/], ans: '圆周率 π 约等于 3.1415926535…，它是圆的周长与直径的比值。' },
+  { keys: [/勾股定理|直角三角形/], ans: '勾股定理：在直角三角形中，两条直角边的平方和等于斜边的平方，即 a² + b² = c²。' },
+
+  // 自我介绍与功能
+  { keys: [/你是谁|你叫什么|你的名字/], ans: '我是 CHUNXI 哈利猫 🐱，由 CHUNXI 科技团队和春熙医疗团队联合开发的智能 AI 助手。' },
+  { keys: [/你会做什么|你能做什么|你有什么功能/], ans: '我可以陪你聊天、回答问题、写代码、生成图片、生成视频，还能帮你分析图片内容。有什么想聊的？' },
+  { keys: [/哈利猫|harrycat/], ans: 'CHUNXI 哈利猫是由 CHUNXI 科技团队与春熙医疗团队联合开发的智能 AI 助手，可以聊天、写代码、生成图片和视频。' },
+
+  // 科学与技术
+  { keys: [/量子计算是什么|什么是量子计算/], ans: '量子计算是利用量子力学原理（如叠加态、量子纠缠）进行计算的技术。与传统计算机使用 0 或 1 的比特不同，量子计算机使用量子比特（qubit），可以同时处于多种状态，因此在某些复杂问题（如大数分解、药物模拟）上潜力巨大。' },
+  { keys: [/人工智能是什么|什么是人工智能|AI是什么/], ans: '人工智能（AI）是让计算机模拟人类智能的技术，包括学习、推理、理解语言、识别图像等。常见的应用有语音助手、推荐系统、自动驾驶、机器翻译等。' },
+  { keys: [/区块链是什么|什么是区块链/], ans: '区块链是一种分布式数据库技术，数据以“区块”的形式按时间顺序链接成链。它具有去中心化、不可篡改、透明可追溯等特点，常用于数字货币、供应链溯源、电子证照等场景。' },
+  { keys: [/云计算是什么|什么是云计算/], ans: '云计算是通过互联网按需提供的计算资源服务，包括服务器、存储、数据库、网络、软件等。用户无需购买和维护硬件，就能灵活使用计算能力。' },
+  { keys: [/大数据是什么|什么是大数据/], ans: '大数据是指规模巨大、类型多样、处理速度快的数据集合。通过分析大数据，可以发现规律、辅助决策，广泛应用于电商推荐、城市交通、医疗健康等领域。' },
+  { keys: [/物联网是什么|什么是物联网/], ans: '物联网（IoT）是指通过各种传感器和网络技术，把物理设备连接起来，实现数据采集、远程控制和智能管理。例如智能家居、智能手环、工业监控等。' },
+  { keys: [/5G是什么|什么是5G/], ans: '5G 是第五代移动通信技术，具有高速率、低延迟、大连接的特点，可支持高清视频、虚拟现实、自动驾驶、工业互联网等应用。' },
+  { keys: [/基因是什么|什么是基因/], ans: '基因是携带遗传信息的 DNA 片段，决定生物的性状和功能。基因通过复制和表达，控制蛋白质的合成，从而影响生物体的生长、发育和代谢。' },
+  { keys: [/细胞是什么|什么是细胞/], ans: '细胞是生物体结构和功能的基本单位。除病毒外，所有生物都由细胞构成。细胞包含细胞膜、细胞质、细胞核等结构，能够进行新陈代谢、生长、繁殖等生命活动。' },
+  { keys: [/光合作用是什么|什么是光合作用/], ans: '光合作用是绿色植物、藻类和某些细菌利用光能，把二氧化碳和水转化为有机物并释放氧气的过程。它是地球上生命能量的重要来源。' },
+
+  // 天文地理
+  { keys: [/太阳是什么|太阳属于什么|太阳是/], ans: '太阳是太阳系的中心恒星，是一颗G型主序星。它占据了太阳系总质量的约99.86%，为地球提供光和热，是生命存在的重要条件。' },
+  { keys: [/地球是什么|地球属于哪里|地球是/], ans: '地球是太阳系中的第三颗行星，也是目前已知唯一孕育生命的星球。它有一颗天然卫星——月球。' },
+  { keys: [/月亮是什么|月球是什么/], ans: '月球是地球唯一的天然卫星，距离地球约38.4万公里。它绕地球公转，同时也影响地球的潮汐变化。' },
+  { keys: [/火星是什么|火星属于/], ans: '火星是太阳系第四颗行星，因表面呈红色被称为“红色星球”。火星有两颗小卫星，是人类深空探测的重要目标。' },
+  { keys: [/木星是什么|木星属于/], ans: '木星是太阳系最大的行星，属于气态巨行星。它拥有众多卫星，其中最大的四颗被称为伽利略卫星。' },
+  { keys: [/银河是什么|银河系/], ans: '银河系是太阳所在的星系，由数千亿颗恒星、星云、暗物质等组成，直径约 10 万光年。' },
+  { keys: [/光年是什么|什么是光年/], ans: '光年是光在真空中一年内传播的距离，约等于 9.46 万亿公里。它是天文学中常用的距离单位，不是时间单位。' },
+  { keys: [/黑洞是什么|什么是黑洞/], ans: '黑洞是引力极强、光都无法逃脱的天体。它通常由大质量恒星塌缩形成，周围存在事件视界。' },
+  { keys: [/彩虹是什么|什么是彩虹/], ans: '彩虹是阳光穿过空气中的水滴时，发生折射、反射和色散而形成的光学现象，通常呈现红、橙、黄、绿、蓝、靛、紫七种颜色。' },
+
+  // 化学与生物
+  { keys: [/水是|水是什么|水的化学式/], ans: '水是由氢和氧组成的化合物，化学式是 H₂O。它在常温常压下是无色透明的液体，是生命必需的物质。' },
+  { keys: [/氧气|氧是什么|氧气的化学式/], ans: '氧气是氧元素组成的气体，化学式为 O₂。它是大多数生物呼吸所必需的气体，在空气中约占21%。' },
+  { keys: [/二氧化碳|CO2|co2/], ans: '二氧化碳（CO₂）是由一个碳原子和两个氧原子组成的气体。它是温室气体之一，植物光合作用需要它，人类和动物呼出它。' },
+  { keys: [/氢气|氢是什么|氢气的化学式/], ans: '氢气是氢元素组成的气体，化学式为 H₂。它是宇宙中最丰富的元素，也是清洁能源的重要候选。' },
+  { keys: [/DNA是什么|什么是DNA/], ans: 'DNA（脱氧核糖核酸）是携带生物遗传信息的分子，呈双螺旋结构。它由四种碱基（A、T、C、G）组成，决定生物的遗传特征。' },
+  { keys: [/蛋白质是什么|什么是蛋白质/], ans: '蛋白质是由氨基酸组成的大分子，是生命活动的主要承担者。它参与构成细胞结构、催化生化反应、免疫防御等多种功能。' },
+  { keys: [/维生素是什么|什么是维生素/], ans: '维生素是人体必需的微量有机物质，虽然需要量很少，但对维持正常生理功能非常重要。例如维生素 C 有助于增强免疫力，维生素 D 有助于钙吸收。' },
+
+  // 历史人文
+  { keys: [/秦始皇是谁|秦始皇/], ans: '秦始皇（嬴政）是中国历史上第一位皇帝，公元前 221 年统一六国，建立秦朝。他推行郡县制、统一文字、货币、度量衡，修筑长城。' },
+  { keys: [/孔子是谁|孔子/], ans: '孔子（公元前 551 年—前 479 年）是中国春秋时期思想家、教育家，儒家学派创始人。他的思想对中国和世界文化影响深远。' },
+  { keys: [/李白是谁|李白/], ans: '李白（701 年—762 年）是唐代著名诗人，被称为“诗仙”。他的诗风豪放飘逸，代表作有《静夜思》《将进酒》《望庐山瀑布》等。' },
+  { keys: [/杜甫是谁|杜甫/], ans: '杜甫（712 年—770 年）是唐代著名诗人，被称为“诗圣”。他的诗反映社会现实，被称为“诗史”，代表作有“三吏”“三别”等。' },
+  { keys: [/四大发明|中国古代四大发明/], ans: '中国古代四大发明是：造纸术、印刷术、火药、指南针。它们对世界文明发展产生了深远影响。' },
+  { keys: [/长城是什么|万里长城/], ans: '长城是中国古代的军事防御工程，总长度超过 2 万公里。它始建于西周，秦、汉、明等朝代都进行过大规模修筑，是世界文化遗产。' },
+  { keys: [/故宫是什么|紫禁城/], ans: '故宫又称紫禁城，位于北京市中心，是明清两代的皇家宫殿。它是世界上现存规模最大、保存最完整的木质结构古建筑群。' },
+  { keys: [/丝绸之路是什么|什么是丝绸之路/], ans: '丝绸之路是古代连接中国与中亚、西亚、欧洲的贸易通道，因丝绸贸易而得名。它促进了东西方经济、文化和技术的交流。' },
+
+  // 生活常识
+  { keys: [/为什么天是蓝的|天空为什么是蓝色/], ans: '天空呈现蓝色是因为大气分子对太阳光中的蓝光散射更强。太阳光中蓝光波长较短，容易被空气分子散射到各个方向，因此我们从地面看天空是蓝色的。' },
+  { keys: [/为什么海水是咸的|海水为什么是咸的/], ans: '海水咸是因为陆地上的岩石和土壤中的盐分，经过雨水冲刷流入河流，最终汇入海洋。水分蒸发后盐分留下，长期积累使海水变咸。' },
+  { keys: [/为什么有四季|四季是怎么形成的/], ans: '四季形成是因为地球自转轴倾斜约 23.5 度，地球绕太阳公转时，不同地区接受太阳光照的角度和时间不同，从而形成春夏秋冬四季。' },
+  { keys: [/为什么会下雨|雨是怎么形成的/], ans: '下雨是因为地表水蒸发成水蒸气上升到空中，遇冷凝结成小水滴或冰晶，形成云。当水滴足够大、空气托不住时，就会降落到地面形成雨。' },
+  { keys: [/为什么月亮会圆缺|月相变化/], ans: '月亮的圆缺是因为月球绕地球公转时，太阳照射月球的方向不断变化。我们从地球上看到的被照亮部分随之变化，形成新月、上弦月、满月、下弦月等月相。' },
+  { keys: [/为什么人会做梦|做梦是什么原因/], ans: '做梦通常发生在快速眼动睡眠阶段。科学家认为，做梦可能与大脑整理记忆、处理情绪、巩固学习有关，但具体机制仍在研究中。' },
+  { keys: [/为什么冰会浮在水上|冰为什么浮在水面/], ans: '冰能浮在水上是因为水在结冰时体积膨胀、密度变小。冰的密度约为 0.92 g/cm³，小于液态水的 1 g/cm³，所以冰会浮在水面。' },
+
+  // 健康与饮食
+  { keys: [/感冒是什么|什么是感冒/], ans: '感冒是由病毒感染引起的上呼吸道疾病，常见症状有鼻塞、流涕、咽痛、咳嗽、发热等。普通感冒一般 7 天左右可自愈，注意多休息、多喝水。' },
+  { keys: [/发烧怎么办|发热怎么办/], ans: '发烧时应多休息、多喝水，可以用温水擦拭身体物理降温。体温超过 38.5°C 且明显不适时，可在医生指导下服用退烧药。如持续高热或伴有严重症状，请及时就医。' },
+  { keys: [/维生素C|维C/], ans: '维生素 C 是一种水溶性维生素，具有抗氧化作用，有助于增强免疫力、促进铁吸收。富含维生素 C 的食物有柑橘、猕猴桃、草莓、青椒等。' },
+  { keys: [/糖尿病是什么|什么是糖尿病/], ans: '糖尿病是一种慢性代谢性疾病，主要特征是血糖长期高于正常水平。常见类型有 1 型糖尿病和 2 型糖尿病。控制饮食、规律运动、遵医嘱用药是管理糖尿病的关键。' },
+  { keys: [/高血压是什么|什么是高血压/], ans: '高血压是指动脉血压持续升高。正常血压一般低于 120/80 mmHg。长期高血压会增加心脑血管疾病风险，需要低盐饮食、控制体重、规律作息和遵医嘱治疗。' },
+
+  // 计算机与互联网
+  { keys: [/什么是Python|Python是什么/], ans: 'Python 是一种高级编程语言，语法简洁、功能强大，广泛应用于数据分析、人工智能、Web 开发、自动化运维等领域。' },
+  { keys: [/什么是JavaScript|JavaScript是什么/], ans: 'JavaScript 是一种主要用于网页开发的脚本语言，可以在浏览器中运行，实现动态交互效果。它也可以用于服务器端开发（Node.js）。' },
+  { keys: [/什么是HTML|HTML是什么/], ans: 'HTML（超文本标记语言）是构建网页的基础语言，用来描述网页的结构和内容。它通过标签定义标题、段落、图片、链接等元素。' },
+  { keys: [/什么是CSS|CSS是什么/], ans: 'CSS（层叠样式表）用于控制网页的外观和布局，包括颜色、字体、边距、定位、动画等。它与 HTML 配合，使网页更加美观。' },
+  { keys: [/什么是数据库|数据库是什么/], ans: '数据库是按照数据结构组织、存储和管理数据的系统。常见的关系型数据库有 MySQL、PostgreSQL，非关系型数据库有 MongoDB、Redis。' },
+  { keys: [/什么是API|API是什么/], ans: 'API（应用程序编程接口）是不同软件系统之间交互的接口。通过 API，开发者可以调用其他系统提供的功能或数据，而无需了解其内部实现。' },
+
+  // 时间与历法
+  { keys: [/一年有多少天|一年几天/], ans: '平年有 365 天，闰年有 366 天。闰年规则：能被 4 整除但不能被 100 整除，或者能被 400 整除的年份。' },
+  { keys: [/一天有多少小时|一天几小时/], ans: '一天有 24 小时，一小时有 60 分钟，一分钟有 60 秒。' },
+  { keys: [/闰年是什么|什么是闰年/], ans: '闰年是为了弥补因人为历法规定造成的年度天数与地球实际公转周期的时间差而设立的。闰年有 366 天，2 月有 29 天。' },
+
+  // 其他常识
+  { keys: [/世界上最高的山|珠穆朗玛峰/], ans: '世界上最高的山峰是珠穆朗玛峰，海拔约 8848.86 米，位于中国与尼泊尔边境。' },
+  { keys: [/世界上最长的河|尼罗河|亚马逊河/], ans: '尼罗河通常被认为是世界上最长的河流，全长约 6650 公里；亚马逊河则是世界上流量最大、流域面积最广的河流。' },
+  { keys: [/中国人口|中国有多少人口/], ans: '中国是世界上人口最多的国家之一，人口超过 14 亿（具体数字以国家统计局最新公布为准）。' },
+  { keys: [/世界上最大的洋|太平洋/], ans: '太平洋是世界上最大、最深的海洋，面积约占地球海洋面积的一半。' },
+  { keys: [/七大洲|世界有几大洲/], ans: '世界有七大洲：亚洲、非洲、北美洲、南美洲、南极洲、欧洲、大洋洲。' },
+  { keys: [/四大洋|世界有几大洋/], ans: '世界有四大洋：太平洋、大西洋、印度洋、北冰洋。' }
+];
+
+function findDirectAnswer(t) {
+  for (const item of DIRECT_ANSWERS) {
+    for (const re of item.keys) {
+      if (re.test(t)) return item.ans;
+    }
+  }
+  return null;
+}
+
+function timeWordToOffset(word) {
+  // 以“今年”为基准 0，返回相对今年的年数
+  const map = {
+    '前年': -2, '去年': -1, '上年': -1, '今年': 0, '明年': 1, '下年': 1,
+    '后年': 2, '大后年': 3, '大大后年': 4
+  };
+  return map[word] !== undefined ? map[word] : null;
+}
+
+function solveChineseAgeProblem(t) {
+  // 匹配类似：前年10岁、5年后多少岁
+  // 也支持：去年8岁，明年几岁
+  const ageRegex = /(前年|去年|今年|明年|后年|大后年)?\s*(\d+)\s*岁/g;
+  const matches = [];
+  let m;
+  while ((m = ageRegex.exec(t)) !== null) {
+    const word = m[1] || '今年';
+    const age = parseInt(m[2], 10);
+    matches.push({ word, age, offset: timeWordToOffset(word) });
+  }
+  if (matches.length === 0) return null;
+
+  const first = matches[0];
+  if (first.offset === null) return null;
+
+  // 寻找目标时间，如“5年后”“3年前”“明年”
+  let targetOffset = null;
+  let targetWord = '';
+
+  // 匹配“X年后/前”
+  const relativeMatch = t.match(/(\d+)\s*年\s*(后|前)/);
+  if (relativeMatch) {
+    const n = parseInt(relativeMatch[1], 10);
+    const dir = relativeMatch[2];
+    targetOffset = dir === '后' ? n : -n;
+    targetWord = relativeMatch[0];
+  } else {
+    // 匹配“明年/后年/去年”等
+    const targetMatch = t.match(/(前年|去年|今年|明年|后年|大后年)/g);
+    if (targetMatch && targetMatch.length > 1) {
+      const w = targetMatch[targetMatch.length - 1];
+      targetOffset = timeWordToOffset(w);
+      targetWord = w;
+    }
+  }
+
+  if (targetOffset === null) return null;
+
+  const currentAge = first.age - first.offset;
+  const resultAge = currentAge + targetOffset;
+  return `解题过程：\n\n- ${first.word}${first.age}岁，所以今年 ${currentAge} 岁\n- ${targetWord}就是 ${targetOffset > 0 ? '+' + targetOffset : targetOffset} 年\n- 因此答案是：**${resultAge} 岁**`;
+}
+
+function solveEquation(t) {
+  // 解一元一次方程，如 2x+3=7, x-5=2
+  // 先提取文本中的方程部分
+  const eqMatch = t.match(/([\d+xX\-+*/().\s]+=\s*[\d+xX\-+*/().\s]+)/);
+  if (!eqMatch) return null;
+  const eq = eqMatch[1].replace(/\s+/g, '').replace(/[×]/g, '*').replace(/[÷]/g, '/');
+  const m = eq.match(/^([\d+xX\-+*/().]+)=([\d+xX\-+*/().]+)$/);
+  if (!m) return null;
+  let left = m[1], right = m[2];
+
+  // 移项：left - right = 0
+  let expr = '';
+  function parseSide(s) {
+    // 简单拆分项
+    const terms = [];
+    let current = '';
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if ((ch === '+' || ch === '-') && i > 0 && current) {
+        terms.push(current);
+        current = ch;
+      } else {
+        current += ch;
+      }
+    }
+    if (current) terms.push(current);
+    return terms;
+  }
+
+  const leftTerms = parseSide(left);
+  const rightTerms = parseSide(right);
+
+  let a = 0, b = 0;
+  function addTerm(term, sign) {
+    term = term.replace(/^[+]/, '');
+    const coef = term.match(/^([\-+]?\d*\.?\d*)x$/i);
+    if (coef) {
+      const c = coef[1] === '' || coef[1] === '+' ? 1 : coef[1] === '-' ? -1 : parseFloat(coef[1]);
+      a += sign * c;
+    } else if (/^[\-+]?\d+\.?\d*$/.test(term)) {
+      b += sign * parseFloat(term);
+    }
+  }
+
+  leftTerms.forEach(term => addTerm(term, 1));
+  rightTerms.forEach(term => addTerm(term, -1));
+
+  if (a === 0) return null;
+  const x = -b / a;
+  return `解方程 **${left} = ${right}**：\n\n移项整理得：${a}x + (${b}) = 0\n解得：**x = ${x}**`;
+}
+
+function tryDirectAnswer(userMsg) {
+  const t = userMsg.text || '';
+  const tl = t.toLowerCase();
+
+  if (/你好|hi|hello|嗨|hey/.test(tl)) {
+    return { role: 'ai', text: `你好呀！很高兴见到你～今天想聊点什么？` };
+  }
+
+  // 优先命中直接知识库答案
+  const direct = findDirectAnswer(t);
+  if (direct) return { role: 'ai', text: direct };
+
+  // 年龄/时间应用题
+  const ageAns = solveChineseAgeProblem(t);
+  if (ageAns) return { role: 'ai', text: ageAns };
+
+  // 一元一次方程
+  const eqAns = solveEquation(t);
+  if (eqAns) return { role: 'ai', text: eqAns };
+
+  // 纯计算题直接算
+  const cleanExpr = t.replace(/[^\d+\-*/×÷().\s]/g, '').trim();
+  if (cleanExpr && /\d/.test(t) && /^[\d+\-*/×÷().\s]+$/.test(cleanExpr)) {
+    try {
+      const expr = cleanExpr.replace(/[×]/g, '*').replace(/[÷]/g, '/');
+      const result = Function('"use strict"; return (' + expr + ')')();
+      return { role: 'ai', text: `计算结果：**${result}**` };
+    } catch(e) {}
+  }
+
+  return null;
+}
+
+function generateChatResponse(userMsg) {
+  const t = userMsg.text || '';
+
+  // 先尝试直接答案
+  const direct = tryDirectAnswer(userMsg);
+  if (direct) return direct;
+
+  // 定义/概念类：尝试给出通用解释
+  if (/^(什么是|什么叫|什么是)\s*/i.test(t)) {
+    const k = extractKeyword(t, ['什么是', '什么叫', '什么是']);
+    if (k) {
+      return { role: 'ai', text: `**${escapeHtml(k)}** 是一种常见的概念、事物或现象。\n\n简单来说，${escapeHtml(k)} 指的是在特定领域中具有特定含义或功能的对象、方法或过程。如果你有更具体的上下文或例子，我可以给出更精确的解释。` };
+    }
+  }
+
+  // 地点/归属类（未命中知识库时）
+  if (/(.+?)\s*(?:属于|在|位于)\s*(?:哪里|哪儿|什么地方)/.test(t)) {
+    const place = RegExp.$1.trim();
+    if (place && place.length < 30) {
+      return { role: 'ai', text: `“${escapeHtml(place)}”是中国的一个省级行政区或直辖市吗？目前我的知识库中还没有关于它的详细信息。你可以补充更多背景，我会尽力帮你确认。` };
+    }
+  }
+
+  // 比较类
+  if (/(.+?)\s*(?:和|与)\s*(.+?)\s*(?:哪个大|哪个更好|有什么区别|有什么不同)/.test(t)) {
+    const a = RegExp.$1.trim();
+    const b = RegExp.$2.trim();
+    return { role: 'ai', text: `“${escapeHtml(a)}”和“${escapeHtml(b)}”的比较取决于具体标准和应用场景。\n\n一般来说，可以从以下几个维度分析：功能、性能、成本、易用性、适用范围。如果你能告诉我你更关注哪一点，我可以给出更有针对性的建议。` };
+  }
+
+  // 原因类
+  if (/^(为什么|为何)\s*/i.test(t)) {
+    return { role: 'ai', text: `“${escapeHtml(t)}”的原因通常涉及多个方面：内在机制、外部环境以及相关因素之间的相互作用。\n\n如果你能提供更多背景信息，比如具体场景或条件，我可以帮你更准确地分析原因。` };
+  }
+
+  // 方法类
+  if (/^(怎么做|如何|怎样)\s*/i.test(t)) {
+    return { role: 'ai', text: `要做到“${escapeHtml(t)}”，一般可以按以下步骤进行：\n\n1. **明确目标**：清楚你想要达成的结果\n2. **收集信息**：了解相关背景、资源和限制\n3. **制定方案**：列出可行步骤并选择最优路径\n4. **执行落实**：按计划逐步实施\n5. **检查调整**：根据反馈不断优化\n\n如果你告诉我具体场景，我可以给出更详细的操作方案。` };
+  }
+
+  // 疑问句默认
+  if (/[?？]$/.test(t)) {
+    return { role: 'ai', text: `关于“${escapeHtml(t)}”，这需要结合具体情况来看。\n\n常见情况下通常有常规答案，但如果涉及特殊条件或背景，可能需要更多信息。你可以补充细节，我会尽力帮你分析。` };
+  }
+
+  // 最终兜底：围绕用户的话回应
+  return { role: 'ai', text: `你提到的是：“${escapeHtml(t)}”。\n\n关于这个问题，我会尽力帮你分析。如果有更多细节或具体背景，请告诉我，我可以给出更准确的回答。` };
+}
+
+function generateCodeResponse(userMsg) {
+  const t = userMsg.text || '';
+
+  if (/爬虫|豆瓣/.test(t)) {
+    return { role: 'ai', text: `好的！这是用 Python 写的豆瓣电影 Top250 爬虫 🐍\n\n\`\`\`python\nimport requests\nfrom bs4 import BeautifulSoup\nimport pandas as pd\nimport time\n\ndef scrape_douban_top250():\n    headers = {\n        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"\n    }\n    movies = []\n    for start in range(0, 250, 25):\n        url = f"https://movie.douban.com/top250?start={start}"\n        resp = requests.get(url, headers=headers)\n        resp.raise_for_status()\n        soup = BeautifulSoup(resp.text, "html.parser")\n        for item in soup.select(".item"):\n            title = item.select_one(".title").get_text(strip=True)\n            rating = item.select_one(".rating_num").get_text(strip=True)\n            info = item.select_one(".bd p").get_text(strip=True, separator=" | ")\n            movies.append({\n                "title": title,\n                "rating": rating,\n                "info": info\n            })\n        time.sleep(1)  # 礼貌爬取\n    return pd.DataFrame(movies)\n\nif __name__ == "__main__":\n    df = scrape_douban_top250()\n    df.to_csv("douban_top250.csv", index=False, encoding="utf-8-sig")\n    print(f"成功抓取 {len(df)} 部电影 🎬")\n\`\`\`\n\n### 使用说明\n\n1. 安装依赖：\`pip install requests beautifulsoup4 pandas\`\n2. 运行脚本，会生成 \`douban_top250.csv\` 文件\n3. 已加入 \`time.sleep(1)\` 避免被封 IP\n\n需要我加入**详情页爬取**、**反爬策略**或**数据库存储**吗？` };
+  }
+  if (/待办|todo|todolist/.test(t)) {
+    return { role: 'ai', text: `好的！一个原生 JavaScript 待办事项应用 📝\n\n\`\`\`html\n<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="UTF-8">\n<title>待办事项</title>\n<style>\n  body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 0 16px; }\n  h1 { color: #ff7a3d; }\n  .input-row { display: flex; gap: 8px; }\n  input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }\n  button { padding: 10px 18px; background: #ff7a3d; color: #fff; border: none; border-radius: 6px; cursor: pointer; }\n  ul { list-style: none; padding: 0; margin-top: 20px; }\n  li { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; gap: 8px; }\n  li.done span { text-decoration: line-through; color: #999; }\n  .del { margin-left: auto; background: none; color: #ff4444; border: none; cursor: pointer; padding: 4px 8px; }\n</style>\n</head>\n<body>\n  <h1>📝 我的待办</h1>\n  <div class="input-row">\n    <input id="todoInput" placeholder="添加新任务..." />\n    <button onclick="addTodo()">添加</button>\n  </div>\n  <ul id="todoList"></ul>\n  <script>\n    const list = document.getElementById("todoList");\n    const input = document.getElementById("todoInput");\n    let todos = JSON.parse(localStorage.getItem("todos") || "[]");\n    function save() { localStorage.setItem("todos", JSON.stringify(todos)); }\n    function render() {\n      list.innerHTML = "";\n      todos.forEach((t, i) => {\n        const li = document.createElement("li");\n        if (t.done) li.classList.add("done");\n        li.innerHTML = '<input type="checkbox" ' + (t.done?"checked":"") + ' onchange="toggle(' + i + ')">'\n          + '<span>' + t.text + '</span>'\n          + '<button class="del" onclick="del(' + i + ')">删除</button>';\n        list.appendChild(li);\n      });\n    }\n    function addTodo() {\n      const v = input.value.trim();\n      if (!v) return;\n      todos.push({ text: v, done: false });\n      input.value = "";\n      save(); render();\n    }\n    function toggle(i) { todos[i].done = !todos[i].done; save(); render(); }\n    function del(i) { todos.splice(i, 1); save(); render(); }\n    input.addEventListener("keydown", e => { if (e.key === "Enter") addTodo(); });\n    render();\n  </scr${''}ipt>\n</body>\n</html>\n\`\`\`\n\n### 功能清单 ✅\n\n- ✏️ **添加**新任务（回车或点按钮）\n- ✅ **完成**切换（点复选框）\n- 🗑️ **删除**任务\n- 💾 **LocalStorage 持久化**（刷新不丢）\n- 🎨 漂亮的橙色主题\n\n需要我加上**编辑功能**、**分类标签**或**截止日期**吗？` };
+  }
+  if (/react|组件|计数器/.test(t)) {
+    return { role: 'ai', text: `好的！一个 React 计数器组件 ⚛️\n\n\`\`\`jsx\nimport { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div style={{ textAlign: 'center', padding: '40px' }}>\n      <h2>计数器: {count}</h2>\n      <button onClick={() => setCount(c => c + 1)}>➕ 增加</button>\n      <button onClick={() => setCount(c => c - 1)}>➖ 减少</button>\n      <button onClick={() => setCount(0)}>🔄 重置</button>\n    </div>\n  );\n}\n\nexport default Counter;\n\`\`\`\n\n**特点**：\n- 使用 \`useState\` Hook\n- 函数式更新避免闭包问题\n- 一键重置\n\n需要我加上**历史记录**、**步长设置**或**动画效果**吗？` };
+  }
+  // Default code response
+  return { role: 'ai', text: `收到！你正在使用 **Code** 模型 🐱\n\n你问的是："${escapeHtml(t)}"\n\n这里有一段示例代码供你参考：\n\n\`\`\`javascript\n// CHUNXI 哈利猫的代码生成示例\nfunction greet(name) {\n  return '你好，' + name + '！我是 CHUNXI 哈利猫 🐱';\n}\n\nconsole.log(greet('开发者'));\n\`\`\`\n\n**Code 模型最擅长**：\n- 🐍 Python 数据处理\n- 🌐 Web 全栈开发\n- 📱 移动端开发\n- 🗄️ SQL 与数据库\n- 🤖 算法与数据结构\n- 🔧 调试与重构\n\n试试问我："写一个 React 计数器组件" 或 "用 SQL 查最近 7 天的订单" ✨` };
+}
+
+async function generateImageResponse(userMsg) {
+  const prompt = userMsg.text || '梦幻小猫';
+  const seed = Math.floor(Math.random() * 1000000);
+  const encodedPrompt = encodeURIComponent(prompt);
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&seed=${seed}&nologo=true`;
+  return {
+    role: 'ai',
+    type: 'image',
+    text: `✨ 已为你生成图像：${prompt}`,
+    imageHtml: `<img src="${imageUrl}" alt="${escapeHtml(prompt)}" crossorigin="anonymous">`
+  };
+}
+
+async function makeArt(prompt) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512; canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+
+  let bg1 = '#ffd1c1', bg2 = '#ffa877', accent = '#ff6b1a';
+  if (/紫色|purple|梦幻/.test(prompt)) { bg1 = '#e6d4ff'; bg2 = '#9b7aff'; accent = '#7a3dff'; }
+  if (/蓝色|蓝|blue|星空|space|月/.test(prompt)) { bg1 = '#c4dafe'; bg2 = '#3a5fff'; accent = '#2b3a8a'; }
+  if (/绿色|森林|forest/.test(prompt)) { bg1 = '#c4f0d0'; bg2 = '#16a34a'; accent = '#0a6b2a'; }
+  if (/猫|kitten|cat/.test(prompt)) { accent = '#9b7aff'; }
+
+  const g = ctx.createLinearGradient(0, 0, 512, 512);
+  g.addColorStop(0, bg1); g.addColorStop(1, bg2);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random()*512, y = Math.random()*512, r = Math.random()*2 + 0.5;
+    ctx.fillStyle = 'rgba(255,255,255,'+(0.3+Math.random()*0.5)+')';
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+  }
+
+  const cx = 256, cy = 256;
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy-20, 160, 0, Math.PI*2); ctx.stroke();
+
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.ellipse(cx, cy+80, 110, 100, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy-30, 95, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(cx-70, cy-90); ctx.lineTo(cx-50, cy-150); ctx.lineTo(cx-20, cy-100);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(cx+70, cy-90); ctx.lineTo(cx+50, cy-150); ctx.lineTo(cx+20, cy-100);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ffb6c1';
+  ctx.beginPath(); ctx.moveTo(cx-65, cy-95); ctx.lineTo(cx-52, cy-135); ctx.lineTo(cx-32, cy-100); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx+65, cy-95); ctx.lineTo(cx+52, cy-135); ctx.lineTo(cx+32, cy-100); ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle = accent;
+  ctx.beginPath(); ctx.ellipse(cx-32, cy-30, 16, 22, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+32, cy-30, 16, 22, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(cx-28, cy-36, 6, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+36, cy-36, 6, 0, Math.PI*2); ctx.fill();
+
+  ctx.fillStyle = '#ff8a8a';
+  ctx.beginPath(); ctx.moveTo(cx, cy-8); ctx.lineTo(cx-6, cy); ctx.lineTo(cx+6, cy); ctx.closePath(); ctx.fill();
+
+  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.quadraticCurveTo(cx-8, cy+10, cx-12, cy+6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.quadraticCurveTo(cx+8, cy+10, cx+12, cy+6); ctx.stroke();
+
+  ctx.strokeStyle = '#888'; ctx.lineWidth = 1;
+  for (let s of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(cx + s*15, cy+2);
+    ctx.lineTo(cx + s*70, cy - 4);
+    ctx.moveTo(cx + s*15, cy+8);
+    ctx.lineTo(cx + s*70, cy + 8);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.beginPath(); ctx.ellipse(cx, cy+90, 60, 50, 0, 0, Math.PI*2); ctx.fill();
+
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(cx-15, cy+40, 30, 30);
+  ctx.fillStyle = '#00d4ff';
+  ctx.fillRect(cx-9, cy+46, 18, 18);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('CHX', cx, cy+58);
+
+  const grad = ctx.createRadialGradient(cx, cy, 100, cx, cy, 250);
+  grad.addColorStop(0, 'rgba(255,255,255,0)');
+  grad.addColorStop(1, 'rgba(255,255,255,0.3)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 512, 512);
+
+  return canvas.toDataURL('image/png');
+}
+
+async function generateVideoResponse(userMsg) {
+  const prompt = userMsg.text || '梦幻小猫';
+
+  try {
+    toast('🎬 正在生成视频，请稍候…');
+    const videoUrl = await createCanvasVideo(prompt);
+    return {
+      role: 'ai',
+      type: 'video',
+      text: `🎬 已为你生成视频：${prompt}`,
+      videoHtml: `<video src="${videoUrl}" controls playsinline preload="metadata" style="max-width:100%;border-radius:12px;"></video>`
+    };
+  } catch (e) {
+    return {
+      role: 'ai',
+      type: 'video',
+      text: `🎬 视频生成失败\n\n**画面描述**：${prompt}\n\n错误信息：${escapeHtml(e.message || '未知错误')}\n\n请检查网络连接或稍后重试。`,
+      videoHtml: ''
+    };
+  }
+}
+
+async function createCanvasVideo(prompt) {
+  const width = 512;
+  const height = 512;
+  const duration = 5000; // 5 秒
+  const fps = 30;
+
+  // 1) 根据提示词生成图片
+  const seed = Math.floor(Math.random() * 1000000);
+  const encodedPrompt = encodeURIComponent(prompt);
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  const imageLoaded = new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = () => reject(new Error('图片加载失败'));
+  });
+  img.src = imageUrl;
+  await imageLoaded;
+
+  // 2) 检查浏览器支持
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
+    throw new Error('当前浏览器不支持视频录制');
+  }
+
+  // 3) 创建画布和录制器
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+    ? 'video/webm;codecs=vp9'
+    : MediaRecorder.isTypeSupported('video/webm;codecs=vp8')
+      ? 'video/webm;codecs=vp8'
+      : 'video/webm';
+
+  const stream = canvas.captureStream(fps);
+  const mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3000000 });
+  const chunks = [];
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
+
+  const recordingPromise = new Promise((resolve, reject) => {
+    mediaRecorder.onstop = () => {
+      setTimeout(() => {
+        if (chunks.length === 0) {
+          reject(new Error('录制失败，未获取到视频数据'));
+          return;
+        }
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        resolve(url);
+      }, 200);
+    };
+    mediaRecorder.onerror = () => reject(new Error('视频录制出错'));
+  });
+
+  // 先画一帧，再开始录制，确保首帧有效
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, width, height);
+  ctx.drawImage(img, 0, 0, width, height);
+
+  mediaRecorder.start(200);
+
+  // 4) 动画循环：Ken Burns 缩放平移 + 轻微粒子效果
+  const startTime = performance.now();
+  let rafId;
+  let lastFrameTime = startTime;
+
+  function drawFrame() {
+    const now = performance.now();
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
+
+    const scale = 1 + progress * 0.15;
+    const panX = Math.sin(progress * Math.PI * 2) * 20;
+    const panY = Math.cos(progress * Math.PI * 2) * 12;
+    const dw = width * scale;
+    const dh = height * scale;
+    const dx = (width - dw) / 2 + panX;
+    const dy = (height - dh) / 2 + panY;
+
+    ctx.drawImage(img, dx, dy, dw, dh);
+
+    // 轻微飘动粒子
+    const particleCount = 20;
+    for (let i = 0; i < particleCount; i++) {
+      const t = (progress + i / particleCount) % 1;
+      const px = (i * 37 + t * width) % width;
+      const py = (i * 23 + t * height * 0.7) % height;
+      const size = 1 + (i % 3);
+      ctx.fillStyle = `rgba(255,255,255,${0.08 + (i % 5) * 0.02})`;
+      ctx.beginPath();
+      ctx.arc(px, py, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    lastFrameTime = now;
+
+    if (elapsed < duration) {
+      rafId = requestAnimationFrame(drawFrame);
+    } else {
+      cancelAnimationFrame(rafId);
+      // 多录几帧确保收尾
+      setTimeout(() => {
+        mediaRecorder.requestData();
+        setTimeout(() => mediaRecorder.stop(), 100);
+      }, 100);
+    }
+  }
+
+  drawFrame();
+
+  return await recordingPromise;
+}
+
+/* ============== Deploy HTML feature ============== */
+$('deployBtn').addEventListener('click', () => {
+  $('deployModal').classList.add('show');
+  $('deployResult').style.display = 'none';
+});
+$('deployClose').addEventListener('click', () => $('deployModal').classList.remove('show'));
+$('deployModal').addEventListener('click', (e) => {
+  if (e.target === $('deployModal')) $('deployModal').classList.remove('show');
+});
+
+$('deploySubmit').addEventListener('click', () => {
+  const html = $('deployTextarea').value.trim();
+  if (!html) { toast('请先粘贴 HTML 代码'); return; }
+  if (!/<html/i.test(html)) { toast('请粘贴完整的 HTML 文档'); return; }
+  $('deploySubmit').disabled = true;
+  $('deploySubmit').textContent = '部署中…';
+  setTimeout(() => {
+    // Generate a fake short code
+    const code = 'user-' + Math.random().toString(36).slice(2, 8);
+    const url = 'https://www.htmlcode.fun/s/' + code;
+    $('deployUrl').textContent = url;
+    $('deployResult').style.display = 'block';
+    $('deploySubmit').disabled = false;
+    $('deploySubmit').textContent = '🚀 立即部署';
+    toast('部署成功 🎉');
+    // Save to localStorage for demo
+    try {
+      localStorage.setItem('chunxi_deploy_' + code, html);
+    } catch(e) {}
+  }, 1200);
+});
+
+$('deployCopy').addEventListener('click', () => {
+  const url = $('deployUrl').textContent;
+  navigator.clipboard.writeText(url).then(() => toast('链接已复制 📋'));
+});
+
+/* ============== Image Lightbox ============== */
+function openImageLightbox(src) {
+  if (!src) return;
+  $('lightboxImg').src = src;
+  $('imageLightbox').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeImageLightbox() {
+  $('imageLightbox').classList.remove('show');
+  $('lightboxImg').src = '';
+  document.body.style.overflow = '';
+}
+
+async function saveLightboxImage() {
+  const src = $('lightboxImg').src;
+  const img = $('lightboxImg');
+  if (!src || !img.complete) return;
+
+  // 1) Try canvas download (works if image allows CORS)
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth || 512;
+    canvas.height = img.naturalHeight || 512;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const dataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = 'chunxi-harrycat-' + Date.now() + '.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('图片已开始保存');
+    return;
+  } catch (e) {}
+
+  // 2) Try fetch as blob
+  try {
+    const resp = await fetch(src, { mode: 'cors' });
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'chunxi-harrycat-' + Date.now() + '.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    toast('图片已开始保存');
+    return;
+  } catch (e) {}
+
+  // 3) Fallback: open in new tab so user can save manually
+  window.open(src, '_blank');
+  toast('已在新标签页打开图片，请长按或右键保存');
+}
+
+$('lightboxClose').addEventListener('click', closeImageLightbox);
+$('lightboxSave').addEventListener('click', saveLightboxImage);
+$('imageLightbox').addEventListener('click', (e) => {
+  if (e.target === $('imageLightbox')) closeImageLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $('imageLightbox').classList.contains('show')) {
+    closeImageLightbox();
+  }
+});
+
+/* ============== Theme (just toggle accent for demo) ============== */
+// No theme toggle in this version per request focus
+
+</script>
+
+</body>
+</html>
