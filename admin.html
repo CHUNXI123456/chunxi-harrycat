@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CHUNXI 哈利猫 - 后台管理</title>
+<meta name="description" content="CHUNXI 哈利猫后台管理系统 - 账户管理">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #f7f7f8;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --text-2: #6b6b70;
+    --text-3: #9a9a9f;
+    --border: #ececef;
+    --primary: #1a1a1a;
+    --accent: #ff7a3d;
+    --hover: #f0f0f2;
+    --shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background:
+      radial-gradient(800px 400px at 0% 0%, rgba(255,180,140,0.10), transparent 60%),
+      radial-gradient(600px 300px at 100% 100%, rgba(140,180,255,0.10), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Login */
+  .login-screen {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #fff5ed 0%, #f0f4ff 100%);
+    padding: 20px;
+  }
+  .login-card {
+    width: 100%; max-width: 420px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 36px 28px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.10);
+    text-align: center;
+  }
+  .login-logo {
+    width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 14px;
+    background: linear-gradient(135deg, #ffd1c1, #ffa877);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+  .login-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .login-title span { color: var(--accent); }
+  .login-sub { color: var(--text-2); font-size: 13px; margin-bottom: 22px; }
+  .login-input {
+    width: 100%; height: 46px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    padding: 0 14px; font-size: 15px; color: var(--text);
+    outline: none; transition: all .2s; margin-bottom: 12px;
+  }
+  .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,122,61,0.12); }
+  .login-btn {
+    width: 100%; height: 46px; border-radius: 12px;
+    border: none; background: var(--accent); color: #fff;
+    cursor: pointer; font-size: 15px; font-weight: 600;
+    transition: opacity .2s; margin-top: 4px;
+  }
+  .login-btn:hover { opacity: 0.9; }
+  .login-footer {
+    margin-top: auto; padding-top: 8px;
+    color: var(--text-3); font-size: 9px;
+    line-height: 1.4; opacity: 0.6;
+    text-align: center;
+  }
+
+  /* Admin Panel */
+  .admin-panel {
+    display: none; flex-direction: column;
+    height: 100vh; position: relative; z-index: 1;
+  }
+  .admin-panel.show { display: flex; }
+  .admin-header {
+    height: 60px; padding: 0 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-title { font-size: 18px; font-weight: 700; }
+  .admin-logout {
+    height: 36px; padding: 0 16px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text-2); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .admin-logout:hover { background: var(--hover); color: var(--text); }
+  .admin-body {
+    flex: 1; overflow-y: auto;
+    padding: 20px; max-width: 900px; margin: 0 auto; width: 100%;
+  }
+  .admin-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .stat-num { font-size: 26px; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+  .admin-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 18px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .admin-card-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+  .admin-form {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .admin-input {
+    flex: 1; min-width: 180px; height: 42px;
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 0 12px; font-size: 14px; outline: none;
+  }
+  .admin-input:focus { border-color: var(--accent); }
+  .admin-btn {
+    height: 42px; padding: 0 18px; border-radius: 12px;
+    border: none; background: var(--accent); color: #fff;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: opacity .2s;
+  }
+  .admin-btn:hover { opacity: 0.9; }
+  .admin-btn.danger { background: #ff4444; }
+  .admin-table-wrap { overflow-x: auto; }
+  .admin-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .admin-table th, .admin-table td {
+    padding: 12px 10px; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-table th { color: var(--text-2); font-weight: 600; }
+  .admin-table td { color: var(--text); }
+  .status-tag {
+    display: inline-block; padding: 3px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+  }
+  .status-normal { background: #e6f7ed; color: #0a9b4a; }
+  .status-banned { background: #ffeeee; color: #ff4444; }
+  .status-admin { background: #fff5ed; color: var(--accent); }
+  .admin-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .admin-actions button {
+    height: 30px; padding: 0 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--card);
+    font-size: 12px; cursor: pointer; transition: all .2s;
+  }
+  .admin-actions button:hover { background: var(--hover); }
+  .admin-actions .ban { color: #ff4444; }
+  .admin-actions .unban { color: #0a9b4a; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(0,0,0,0.8); color: #fff;
+    padding: 10px 18px; border-radius: 12px; font-size: 14px;
+    opacity: 0; pointer-events: none; transition: all .3s;
+    z-index: 9999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px) {
+    .admin-body { padding: 14px; }
+    .admin-form { flex-direction: column; }
+    .admin-input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🛡️</div>
+    <div class="login-title">CHUNXI <span>后台管理</span></div>
+    <div class="login-sub">管理员登录 · 账户管理</div>
+    <input type="text" class="login-input" id="emailInput" placeholder="管理员账号（用户名 / 邮箱）">
+    <input type="password" class="login-input" id="passwordInput" placeholder="密码">
+    <button class="login-btn" id="loginBtn">管理员登录</button>
+    <div class="login-footer">
+      © 2026 CHUNXI 科技 · 春熙医疗团队
+    </div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-header">
+    <div class="admin-title">🛡️ CHUNXI 哈利猫后台管理</div>
+    <button class="admin-logout" id="adminLogout">退出管理</button>
+  </div>
+  <div class="admin-body">
+    <div class="admin-stats" id="adminStats"></div>
+    <div class="admin-card">
+      <div class="admin-card-title">添加账户</div>
+      <div class="admin-form">
+        <input type="email" class="admin-input" id="adminNewEmail" placeholder="邮箱地址">
+        <input type="password" class="admin-input" id="adminNewPassword" placeholder="密码（不少于6位）">
+        <button class="admin-btn" id="adminAddUser">添加账户</button>
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-title">账户列表</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="adminUserTable">
+          <thead>
+            <tr>
+              <th>用户名 / 账号信息</th>
+              <th>注册时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="adminUserTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_EMAIL = 'admin@chunxi.fun';
+const ADMIN_DEFAULT_PASSWORD = 'chunxi888';
+const CONVERSATIONS_KEY = 'chunxi_conversations';
+
+function $(id) { return document.getElementById(id); }
+
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function getConversationsKey(username) {
+  return CONVERSATIONS_KEY + '_' + (username || 'guest');
+}
+
+function getUsers() {
+  try {
+    const raw = localStorage.getItem('chunxi_users') || '{}';
+    const users = JSON.parse(raw);
+    return migrateUsers(users);
+  } catch (e) { return {}; }
+}
+
+function migrateUsers(users) {
+  if (!users || typeof users !== 'object') return {};
+  const keys = Object.keys(users);
+  const isOldFormat = keys.some(k => k.includes('@') && users[k] && typeof users[k] === 'object' && !users[k].username);
+  if (!isOldFormat && keys.every(k => !users[k] || typeof users[k] !== 'string')) return users;
+
+  const newUsers = {};
+  keys.forEach(key => {
+    const u = users[key];
+    if (typeof u === 'string') {
+      newUsers[key] = {
+        password: u,
+        createdAt: Date.now(),
+        email: key,
+        username: key,
+        loginType: 'email',
+        banned: false
+      };
+    } else if (typeof u === 'object') {
+      const username = u.username || key;
+      newUsers[username] = {
+        ...u,
+        email: u.email || (key.includes('@') ? key : ''),
+        username: username,
+        loginType: u.loginType || (key.includes('@') ? 'email' : 'danzai'),
+        banned: !!u.banned
+      };
+    }
+  });
+  saveUsers(newUsers);
+  return newUsers;
+}
+
+function saveUsers(users) {
+  localStorage.setItem('chunxi_users', JSON.stringify(users));
+}
+
+function ensureAdminAccount() {
+  const users = getUsers();
+  const adminUsername = 'admin';
+  if (!users[adminUsername]) {
+    users[adminUsername] = {
+      password: ADMIN_DEFAULT_PASSWORD,
+      createdAt: Date.now(),
+      email: ADMIN_EMAIL,
+      username: adminUsername,
+      loginType: 'email',
+      isAdmin: true,
+      banned: false
+    };
+    saveUsers(users);
+  }
+}
+
+function findUserByUsername(username) {
+  if (!username) return null;
+  const users = getUsers();
+  return users[username] || null;
+}
+
+function findUserByEmail(email) {
+  if (!email) return null;
+  const users = getUsers();
+  for (const username in users) {
+    if (users[username].email === email) return { username, user: users[username] };
+  }
+  return null;
+}
+
+function isAdminUser(username, user) {
+  if (username === 'admin') return true;
+  return user && user.isAdmin;
+}
+
+function formatDate(ts) {
+  if (!ts) return '-';
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
+function login() {
+  const account = $('emailInput').value.trim();
+  const password = $('passwordInput').value;
+  if (!account || !password) { toast('请输入管理员账号和密码'); return; }
+  ensureAdminAccount();
+
+  let username = account;
+  let user = findUserByUsername(account);
+  if (!user && isValidEmail(account)) {
+    const found = findUserByEmail(account);
+    if (found) {
+      username = found.username;
+      user = found.user;
+    }
+  }
+  if (!user) { toast('该账号未注册'); return; }
+  if (!isAdminUser(username, user)) { toast('非管理员账号，无法进入后台'); return; }
+  if (user.password !== password) { toast('密码错误'); return; }
+  if (user.banned) { toast('该账户已被封禁'); return; }
+  $('loginScreen').style.display = 'none';
+  $('adminPanel').classList.add('show');
+  localStorage.setItem('chunxi_admin_session', '1');
+  localStorage.setItem('chunxi_admin_username', username);
+  renderAdminPanel();
+  toast('管理员登录成功');
+}
+
+function logout() {
+  localStorage.removeItem('chunxi_admin_session');
+  localStorage.removeItem('chunxi_admin_username');
+  $('loginScreen').style.display = 'flex';
+  $('emailInput').value = '';
+  $('passwordInput').value = '';
+}
+
+function renderAdminPanel() {
+  renderAdminStats();
+  renderAdminUserTable();
+}
+
+function renderAdminStats() {
+  const users = getUsers();
+  const emails = Object.keys(users);
+  const total = emails.length;
+  const banned = emails.filter(e => users[e].banned).length;
+  let totalConvs = 0;
+  emails.forEach(e => {
+    try {
+      const data = localStorage.getItem(getConversationsKey(e));
+      if (data) {
+        const list = JSON.parse(data);
+        if (Array.isArray(list)) totalConvs += list.length;
+      }
+    } catch (err) {}
+  });
+  $('adminStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">总账户</div></div>
+    <div class="stat-card"><div class="stat-num">${banned}</div><div class="stat-label">已封禁</div></div>
+    <div class="stat-card"><div class="stat-num">${total - banned}</div><div class="stat-label">正常账户</div></div>
+    <div class="stat-card"><div class="stat-num">${totalConvs}</div><div class="stat-label">历史对话</div></div>
+  `;
+}
+
+function renderAdminUserTable() {
+  const users = getUsers();
+  const tbody = $('adminUserTbody');
+  tbody.innerHTML = '';
+  const usernames = Object.keys(users).sort((a, b) => (users[b].createdAt || 0) - (users[a].createdAt || 0));
+  if (usernames.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:24px;">暂无账户</td></tr>';
+    return;
+  }
+  usernames.forEach(username => {
+    const u = users[username];
+    const isAdmin = isAdminUser(username, u);
+    const isBanned = !!u.banned;
+    let statusHtml = '';
+    if (isAdmin) {
+      statusHtml = '<span class="status-tag status-admin">管理员</span>';
+    } else if (isBanned) {
+      statusHtml = '<span class="status-tag status-banned">已封禁</span>';
+    } else {
+      statusHtml = '<span class="status-tag status-normal">正常</span>';
+    }
+    let extraInfo = '';
+    if (u.loginType === 'danzai') {
+      extraInfo = `<br><small style="color:var(--text-3)">蛋仔：${escapeHtml(u.danzaiName || '-')} · 快手：${escapeHtml(u.kuaishouName || '-')} · 编号：${escapeHtml(u.danzaiId || '-')}</small>`;
+    } else if (u.email) {
+      extraInfo = `<br><small style="color:var(--text-3)">邮箱：${escapeHtml(u.email)}</small>`;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div>${escapeHtml(username)}${extraInfo}</div>
+      </td>
+      <td>${formatDate(u.createdAt)}</td>
+      <td>${statusHtml}</td>
+      <td>
+        <div class="admin-actions">
+          ${isAdmin ? '' : (isBanned
+            ? `<button class="unban" data-user="${escapeHtml(username)}" data-act="unban">解封</button>`
+            : `<button class="ban" data-user="${escapeHtml(username)}" data-act="ban">封禁</button>`)}
+          <button data-user="${escapeHtml(username)}" data-act="reset">重置密码</button>
+          ${isAdmin ? '' : `<button class="danger" data-user="${escapeHtml(username)}" data-act="delete">删除</button>`}
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button[data-act]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const username = btn.dataset.user;
+      const act = btn.dataset.act;
+      if (act === 'ban') adminBanUser(username);
+      else if (act === 'unban') adminUnbanUser(username);
+      else if (act === 'delete') adminDeleteUser(username);
+      else if (act === 'reset') adminResetPassword(username);
+    });
+  });
+}
+
+function adminAddUser() {
+  const email = $('adminNewEmail').value.trim();
+  const password = $('adminNewPassword').value;
+  if (!email || !password) { toast('请输入邮箱和密码'); return; }
+  if (!isValidEmail(email)) { toast('请输入有效的邮箱地址'); return; }
+  if (password.length < 6) { toast('密码长度不能少于 6 位'); return; }
+  const users = getUsers();
+  if (findUserByEmail(email)) { toast('该邮箱已存在'); return; }
+  if (users[email]) { toast('该用户名已被使用'); return; }
+  users[email] = {
+    password,
+    createdAt: Date.now(),
+    email,
+    username: email,
+    loginType: 'email',
+    banned: false
+  };
+  saveUsers(users);
+  $('adminNewEmail').value = '';
+  $('adminNewPassword').value = '';
+  renderAdminPanel();
+  toast('账户添加成功');
+}
+
+function adminBanUser(username) {
+  if (!confirm(`确定封禁账户 ${username} 吗？`)) return;
+  const users = getUsers();
+  if (users[username]) {
+    users[username].banned = true;
+    saveUsers(users);
+    renderAdminPanel();
+    toast(`已封禁 ${username}`);
+  }
+}
+
+function adminUnbanUser(username) {
+  const users = getUsers();
+  if (users[username]) {
+    users[username].banned = false;
+    saveUsers(users);
+    renderAdminPanel();
+    toast(`已解封 ${username}`);
+  }
+}
+
+function adminDeleteUser(username) {
+  if (!confirm(`确定删除账户 ${username} 吗？该账户的对话记录也会被清除。`)) return;
+  const users = getUsers();
+  delete users[username];
+  saveUsers(users);
+  localStorage.removeItem(getConversationsKey(username));
+  renderAdminPanel();
+  toast(`已删除 ${username}`);
+}
+
+function adminResetPassword(username) {
+  const newPwd = prompt(`请输入 ${username} 的新密码（不少于 6 位）：`);
+  if (!newPwd) return;
+  if (newPwd.length < 6) { toast('密码长度不能少于 6 位'); return; }
+  const users = getUsers();
+  if (users[username]) {
+    users[username].password = newPwd;
+    saveUsers(users);
+    toast('密码重置成功');
+  }
+}
+
+$('loginBtn').addEventListener('click', login);
+$('passwordInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+$('adminLogout').addEventListener('click', logout);
+$('adminAddUser').addEventListener('click', adminAddUser);
+$('adminNewPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') adminAddUser(); });
+
+window.addEventListener('load', () => {
+  ensureAdminAccount();
+  if (localStorage.getItem('chunxi_admin_session')) {
+    $('loginScreen').style.display = 'none';
+    $('adminPanel').classList.add('show');
+    renderAdminPanel();
+  }
+});
+</script>
+
+</body>
+</html>
