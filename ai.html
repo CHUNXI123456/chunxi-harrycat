@@ -1121,7 +1121,7 @@ const LOGO_URL = 'logo.jpg';
 
 const CONVERSATIONS_KEY = 'chunxi_conversations';
 const LEGACY_CHAT_HISTORY_KEY = 'chunxi_chat_history';
-const POLLINATIONS_SYSTEM = '你是 CHUNXI 哈利猫，一个友好的 AI 助手。回答原则：1）只回答你确有把握的问题；2）遇到不确定、不了解、超出知识范围或信息可能过时的内容，必须明确告诉用户“这个问题我不太确定”或“我不知道”，绝不编造、推测或硬答；3）不要为了让用户满意而给出看似正确但不可靠的内容；4）当提供了联网搜索结果时，优先基于搜索结果回答，并引用来源；5）若无法查到相关信息，直接说明没有查到，不要硬编。';
+const POLLINATIONS_SYSTEM = '你是 CHUNXI 哈利猫（HarryCat 1.0），一个由 CHUNXI 科技团队与春熙医疗团队联合打造的友好 AI 助手。回答原则：1）尽力回答用户的问题，态度友好、自信；2）遇到确实不了解或信息不足的内容，坦诚说明“我不太确定”或“我没有查到足够信息”，不编造；3）当提供了联网搜索结果时，优先基于搜索结果回答，并引用来源；4）你可以聊天、回答问题、写代码、分析图片，并辅助用户生成图片和视频。';
 
 function getCurrentUser() {
   return localStorage.getItem('chunxi_login_username') || localStorage.getItem('chunxi_login_email') || '';
@@ -1328,58 +1328,42 @@ function deleteConversation(id) {
   }
 }
 
-async function callPollinationsAI(messages, searchContext) {
+const HARRYCAT_WORKER_URL = 'https://cool-silence-ff2b.3940272622.workers.dev';
+const HARRYCAT_MODEL = '@cf/meta/llama-3.1-8b-instruct';
+
+async function callHarryCatAI(messages, searchContext) {
   const apiMessages = [{ role: 'system', content: POLLINATIONS_SYSTEM }];
   if (searchContext) {
     apiMessages.push({ role: 'system', content: searchContext });
   }
   apiMessages.push(...messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })));
+
   const body = {
-    model: 'openai',
-    messages: apiMessages,
-    temperature: 0.7,
-    max_tokens: 800
+    model: HARRYCAT_MODEL,
+    messages: apiMessages
   };
+
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), 15000);
   try {
-    const resp = await fetch('https://text.pollinations.ai/openai', {
+    const resp = await fetch(HARRYCAT_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       signal: controller.signal
     });
     clearTimeout(timeout);
-    if (!resp.ok) throw new Error('API error ' + resp.status);
+    if (!resp.ok) throw new Error('Worker error ' + resp.status);
     const data = await resp.json();
-    const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-    if (!content) throw new Error('empty response');
-    return content;
+    const content = data.result && data.result.response;
+    if (content) return content;
+    const alt = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (alt) return alt;
+    throw new Error('empty response');
   } catch(e) {
     clearTimeout(timeout);
-    // 如果 POST /openai 失败，尝试 Pollinations 的 GET 简单接口（有些网络环境下该接口可用）
-    try {
-      const simplePrompt = buildSimplePrompt(apiMessages);
-      const simpleResp = await fetchWithTimeout(
-        `https://text.pollinations.ai/${encodeURIComponent(simplePrompt)}?model=openai&seed=${Math.floor(Math.random()*100000)}`,
-        8000
-      );
-      if (!simpleResp.ok) throw new Error('simple API error ' + simpleResp.status);
-      const text = await simpleResp.text();
-      if (text && text.trim()) return text.trim();
-    } catch(e2) {}
     throw e;
   }
-}
-
-function buildSimplePrompt(messages) {
-  let prompt = '';
-  for (const m of messages) {
-    const roleLabel = m.role === 'system' ? '系统' : (m.role === 'assistant' ? 'AI' : '用户');
-    prompt += `${roleLabel}：${m.content}\n`;
-  }
-  prompt += 'AI：';
-  return prompt;
 }
 
 /* ============== Web search helpers ============== */
@@ -2536,13 +2520,13 @@ async function buildAIResponse(userMsg) {
             searchContext = formatSearchContext(userMsg.text, results);
           }
         }
-        const apiText = await callPollinationsAI(getCurrentMessages(), searchContext);
+        const apiText = await callHarryCatAI(getCurrentMessages(), searchContext);
         aiResponse = { role: 'ai', text: apiText };
       } catch(e) {
         // 搜索失败可能导致整体超时，尝试不用搜索再调一次 API
         try {
           setTypingText('正在思考…');
-          const apiText = await callPollinationsAI(getCurrentMessages());
+          const apiText = await callHarryCatAI(getCurrentMessages());
           aiResponse = { role: 'ai', text: apiText };
         } catch(e2) {
           await new Promise(r => setTimeout(r, 400));
