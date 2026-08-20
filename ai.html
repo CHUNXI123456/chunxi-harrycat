@@ -1362,6 +1362,7 @@ async function callHarryCatAI(messages, searchContext) {
     throw new Error('empty response');
   } catch(e) {
     clearTimeout(timeout);
+    console.error('[HarryCat AI error]', e);
     throw e;
   }
 }
@@ -2530,7 +2531,7 @@ async function buildAIResponse(userMsg) {
           aiResponse = { role: 'ai', text: apiText };
         } catch(e2) {
           await new Promise(r => setTimeout(r, 400));
-          aiResponse = generateChatResponse(userMsg);
+          aiResponse = generateChatResponse(userMsg, e2.message || String(e2));
         }
       }
     }
@@ -2934,16 +2935,21 @@ function tryDirectAnswer(userMsg) {
   return null;
 }
 
-function generateChatResponse(userMsg) {
+function generateChatResponse(userMsg, errorMsg) {
   const t = userMsg.text || '';
 
   // 先尝试直接答案（问候、数学、方程等已知问题）
   const direct = tryDirectAnswer(userMsg);
-  if (direct) return direct;
+  if (direct) return { role: 'ai', text: direct };
 
   // 离线兜底：提示网络问题并给出一个可点击的搜索链接
   const searchUrl = 'https://www.baidu.com/s?wd=' + encodeURIComponent(t);
-  return { role: 'ai', text: `我暂时连不上 AI 服务，无法即时回答“${escapeHtml(t)}”。\n\n你可以：\n- 检查网络后重试\n- [去百度搜索一下](${searchUrl})` };
+  let text = `我暂时连不上 AI 服务，无法即时回答“${escapeHtml(t)}”。`;
+  if (errorMsg) {
+    text += `\n\n错误信息：${escapeHtml(errorMsg)}`;
+  }
+  text += `\n\n你可以：\n- 检查网络后重试\n- [去百度搜索一下](${searchUrl})`;
+  return { role: 'ai', text: text };
 }
 
 function generateCodeResponse(userMsg) {
