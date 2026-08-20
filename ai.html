@@ -1120,7 +1120,7 @@ const LOGO_URL = 'logo.jpg';
 
 const CONVERSATIONS_KEY = 'chunxi_conversations';
 const LEGACY_CHAT_HISTORY_KEY = 'chunxi_chat_history';
-const POLLINATIONS_SYSTEM = '你是 CHUNXI 哈利猫，一个友好的 AI 助手。请诚实、直接地回答用户的问题：知道的就回答，不确定或不知道时要明确说“我不太确定”或“我不知道”，不要编造信息。回答应围绕用户的问题展开，给出有价值的信息，但不要假装知道超出你知识范围的内容。';
+const POLLINATIONS_SYSTEM = '你是 CHUNXI 哈利猫，一个友好的 AI 助手。回答原则：1）只回答你确有把握的问题；2）遇到不确定、不了解、超出知识范围或信息可能过时的内容，必须明确告诉用户“这个问题我不太确定”或“我不知道”，绝不编造、推测或硬答；3）不要为了让用户满意而给出看似正确但不可靠的内容。';
 
 function getCurrentUser() {
   return localStorage.getItem('chunxi_login_username') || localStorage.getItem('chunxi_login_email') || '';
@@ -2618,147 +2618,13 @@ function extractKeyword(text, prefixes) {
 }
 
 const DIRECT_ANSWERS = [
-  // 中国地理
-  { keys: [/安徽\s*(?:属于|在)|安徽\s*哪里|安徽省会/], ans: '安徽省位于中国东部，属于华东地区。省会是合肥市。安徽东邻江苏、浙江，南接江西，西连湖北、河南，北靠山东。' },
-  { keys: [/中国首都是?哪里|首都是?哪里|北京是什么|北京属于哪里/], ans: '中国的首都是北京市。北京是中华人民共和国的政治中心、文化中心、国际交往中心、科技创新中心。' },
-  { keys: [/上海属于哪里|上海在哪里|上海是什么地方/], ans: '上海市位于中国东部，长江入海口，是中国直辖市之一，也是中国的经济、金融、贸易、航运和科技创新中心。' },
-  { keys: [/广东属于哪里|广东在哪里|广东省会/], ans: '广东省位于中国南部，属于华南地区。省会是广州市，深圳是经济特区。' },
-  { keys: [/四川属于哪里|四川在哪里|四川省会/], ans: '四川省位于中国西南部。省会是成都市，简称“川”或“蜀”。' },
-  { keys: [/浙江属于哪里|浙江在哪里|浙江省会/], ans: '浙江省位于中国东南沿海，属于华东地区。省会是杭州市。' },
-  { keys: [/江苏属于哪里|江苏在哪里|江苏省会/], ans: '江苏省位于中国东部沿海，属于华东地区。省会是南京市。' },
-  { keys: [/河南属于哪里|河南在哪里|河南省会/], ans: '河南省位于中国中部，属于华中地区。省会是郑州市，简称“豫”。' },
-  { keys: [/湖北属于哪里|湖北在哪里|湖北省会/], ans: '湖北省位于中国中部，属于华中地区。省会是武汉市，简称“鄂”。' },
-  { keys: [/湖南属于哪里|湖南在哪里|湖南省会/], ans: '湖南省位于中国中南部，属于华中地区。省会是长沙市，简称“湘”。' },
-  { keys: [/山东属于哪里|山东在哪里|山东省会/], ans: '山东省位于中国东部沿海，属于华东地区。省会是济南市，简称“鲁”。' },
-  { keys: [/山西属于哪里|山西在哪里|山西省会/], ans: '山西省位于中国华北地区。省会是太原市，简称“晋”。' },
-  { keys: [/陕西属于哪里|陕西在哪里|陕西省会/], ans: '陕西省位于中国西北地区。省会是西安市，简称“陕”或“秦”。' },
-  { keys: [/福建属于哪里|福建在哪里|福建省会/], ans: '福建省位于中国东南沿海，属于华东地区。省会是福州市，厦门是经济特区。' },
-  { keys: [/江西属于哪里|江西在哪里|江西省会/], ans: '江西省位于中国东南部，属于华东地区。省会是南昌市，简称“赣”。' },
-  { keys: [/云南属于哪里|云南在哪里|云南省会/], ans: '云南省位于中国西南部。省会是昆明市，简称“云”或“滇”。' },
-  { keys: [/贵州属于哪里|贵州在哪里|贵州省会/], ans: '贵州省位于中国西南部。省会是贵阳市，简称“贵”或“黔”。' },
-  { keys: [/广西属于哪里|广西在哪里|广西省会/], ans: '广西壮族自治区位于中国南部沿海。首府是南宁市，简称“桂”。' },
-  { keys: [/内蒙古属于哪里|内蒙古在哪里|内蒙古首府/], ans: '内蒙古自治区位于中国北部边疆。首府是呼和浩特市，简称“内蒙古”。' },
-  { keys: [/新疆属于哪里|新疆在哪里|新疆首府/], ans: '新疆维吾尔自治区位于中国西北部。首府是乌鲁木齐市，简称“新”。' },
-  { keys: [/西藏属于哪里|西藏在哪里|西藏首府/], ans: '西藏自治区位于中国西南边陲。首府是拉萨市，简称“藏”。' },
-  { keys: [/宁夏属于哪里|宁夏在哪里|宁夏首府/], ans: '宁夏回族自治区位于中国西北部。首府是银川市，简称“宁”。' },
-  { keys: [/甘肃属于哪里|甘肃在哪里|甘肃省会/], ans: '甘肃省位于中国西北部。省会是兰州市，简称“甘”或“陇”。' },
-  { keys: [/青海属于哪里|青海在哪里|青海省会/], ans: '青海省位于中国西北部。省会是西宁市，简称“青”。' },
-  { keys: [/海南属于哪里|海南在哪里|海南省会/], ans: '海南省位于中国最南端。省会是海口市，三亚是著名旅游城市。' },
-  { keys: [/黑龙江属于哪里|黑龙江在哪里|黑龙江省会/], ans: '黑龙江省位于中国东北部。省会是哈尔滨市，简称“黑”。' },
-  { keys: [/吉林属于哪里|吉林在哪里|吉林省会/], ans: '吉林省位于中国东北部。省会是长春市，简称“吉”。' },
-  { keys: [/辽宁属于哪里|辽宁在哪里|辽宁省会/], ans: '辽宁省位于中国东北部。省会是沈阳市，简称“辽”。' },
-  { keys: [/河北属于哪里|河北在哪里|河北省会/], ans: '河北省位于中国华北地区，环绕北京、天津。省会是石家庄市，简称“冀”。' },
-  { keys: [/天津属于哪里|天津在哪里|天津是什么/], ans: '天津市位于中国华北地区，是中国直辖市之一，北方重要的港口城市和工业基地。' },
-  { keys: [/重庆属于哪里|重庆在哪里|重庆是什么/], ans: '重庆市位于中国西南部，是中国直辖市之一，简称“渝”。' },
-  { keys: [/香港属于哪里|香港在哪里/], ans: '香港特别行政区位于中国南部、珠江口东侧，是国际金融、贸易和航运中心。' },
-  { keys: [/澳门属于哪里|澳门在哪里/], ans: '澳门特别行政区位于中国南部、珠江口西侧，是世界旅游休闲中心。' },
-  { keys: [/台湾属于哪里|台湾在哪里/], ans: '台湾省位于中国东南沿海的大陆架上，是中国不可分割的一部分。' },
-
-  // 简单数学
-  { keys: [/1\+1|一加一/], ans: '1 + 1 = 2' },
-  { keys: [/2\+2|二加二/], ans: '2 + 2 = 4' },
-  { keys: [/3\+3|三加三/], ans: '3 + 3 = 6' },
-  { keys: [/4\+4|四加四/], ans: '4 + 4 = 8' },
-  { keys: [/5\+5|五加五/], ans: '5 + 5 = 10' },
-  { keys: [/6\+6|六加六/], ans: '6 + 6 = 12' },
-  { keys: [/7\+7|七加七/], ans: '7 + 7 = 14' },
-  { keys: [/8\+8|八加八/], ans: '8 + 8 = 16' },
-  { keys: [/9\+9|九加九/], ans: '9 + 9 = 18' },
-  { keys: [/10\+10|十加十/], ans: '10 + 10 = 20' },
-  { keys: [/2\*2|二乘二|2×2/], ans: '2 × 2 = 4' },
-  { keys: [/3\*3|三乘三|3×3/], ans: '3 × 3 = 9' },
-  { keys: [/4\*4|四乘四|4×4/], ans: '4 × 4 = 16' },
-  { keys: [/5\*5|五乘五|5×5/], ans: '5 × 5 = 25' },
-  { keys: [/6\*6|六乘六|6×6/], ans: '6 × 6 = 36' },
-  { keys: [/7\*7|七乘七|7×7/], ans: '7 × 7 = 49' },
-  { keys: [/8\*8|八乘八|8×8/], ans: '8 × 8 = 64' },
-  { keys: [/9\*9|九乘九|9×9/], ans: '9 × 9 = 81' },
-  { keys: [/圆周率|π|pi/], ans: '圆周率 π 约等于 3.1415926535…，它是圆的周长与直径的比值。' },
-  { keys: [/勾股定理|直角三角形/], ans: '勾股定理：在直角三角形中，两条直角边的平方和等于斜边的平方，即 a² + b² = c²。' },
+  // 问候
+  { keys: [/你好|hi|hello|嗨|hey|在吗/], ans: '你好呀！很高兴见到你～今天想聊点什么？' },
 
   // 自我介绍与功能
-  { keys: [/你是谁|你叫什么|你的名字/], ans: '我是 CHUNXI 哈利猫 🐱，由 CHUNXI 科技团队和春熙医疗团队联合开发的智能 AI 助手。' },
+  { keys: [/你是谁|你叫什么|你的名字/], ans: '我是 CHUNXI 哈利猫，由 CHUNXI 科技团队和春熙医疗团队联合开发的智能 AI 助手。' },
   { keys: [/你会做什么|你能做什么|你有什么功能/], ans: '我可以陪你聊天、回答问题、写代码、生成图片、生成视频，还能帮你分析图片内容。有什么想聊的？' },
-  { keys: [/哈利猫|harrycat/], ans: 'CHUNXI 哈利猫是由 CHUNXI 科技团队与春熙医疗团队联合开发的智能 AI 助手，可以聊天、写代码、生成图片和视频。' },
-
-  // 科学与技术
-  { keys: [/量子计算是什么|什么是量子计算/], ans: '量子计算是利用量子力学原理（如叠加态、量子纠缠）进行计算的技术。与传统计算机使用 0 或 1 的比特不同，量子计算机使用量子比特（qubit），可以同时处于多种状态，因此在某些复杂问题（如大数分解、药物模拟）上潜力巨大。' },
-  { keys: [/人工智能是什么|什么是人工智能|AI是什么/], ans: '人工智能（AI）是让计算机模拟人类智能的技术，包括学习、推理、理解语言、识别图像等。常见的应用有语音助手、推荐系统、自动驾驶、机器翻译等。' },
-  { keys: [/区块链是什么|什么是区块链/], ans: '区块链是一种分布式数据库技术，数据以“区块”的形式按时间顺序链接成链。它具有去中心化、不可篡改、透明可追溯等特点，常用于数字货币、供应链溯源、电子证照等场景。' },
-  { keys: [/云计算是什么|什么是云计算/], ans: '云计算是通过互联网按需提供的计算资源服务，包括服务器、存储、数据库、网络、软件等。用户无需购买和维护硬件，就能灵活使用计算能力。' },
-  { keys: [/大数据是什么|什么是大数据/], ans: '大数据是指规模巨大、类型多样、处理速度快的数据集合。通过分析大数据，可以发现规律、辅助决策，广泛应用于电商推荐、城市交通、医疗健康等领域。' },
-  { keys: [/物联网是什么|什么是物联网/], ans: '物联网（IoT）是指通过各种传感器和网络技术，把物理设备连接起来，实现数据采集、远程控制和智能管理。例如智能家居、智能手环、工业监控等。' },
-  { keys: [/5G是什么|什么是5G/], ans: '5G 是第五代移动通信技术，具有高速率、低延迟、大连接的特点，可支持高清视频、虚拟现实、自动驾驶、工业互联网等应用。' },
-  { keys: [/基因是什么|什么是基因/], ans: '基因是携带遗传信息的 DNA 片段，决定生物的性状和功能。基因通过复制和表达，控制蛋白质的合成，从而影响生物体的生长、发育和代谢。' },
-  { keys: [/细胞是什么|什么是细胞/], ans: '细胞是生物体结构和功能的基本单位。除病毒外，所有生物都由细胞构成。细胞包含细胞膜、细胞质、细胞核等结构，能够进行新陈代谢、生长、繁殖等生命活动。' },
-  { keys: [/光合作用是什么|什么是光合作用/], ans: '光合作用是绿色植物、藻类和某些细菌利用光能，把二氧化碳和水转化为有机物并释放氧气的过程。它是地球上生命能量的重要来源。' },
-
-  // 天文地理
-  { keys: [/太阳是什么|太阳属于什么|太阳是/], ans: '太阳是太阳系的中心恒星，是一颗G型主序星。它占据了太阳系总质量的约99.86%，为地球提供光和热，是生命存在的重要条件。' },
-  { keys: [/地球是什么|地球属于哪里|地球是/], ans: '地球是太阳系中的第三颗行星，也是目前已知唯一孕育生命的星球。它有一颗天然卫星——月球。' },
-  { keys: [/月亮是什么|月球是什么/], ans: '月球是地球唯一的天然卫星，距离地球约38.4万公里。它绕地球公转，同时也影响地球的潮汐变化。' },
-  { keys: [/火星是什么|火星属于/], ans: '火星是太阳系第四颗行星，因表面呈红色被称为“红色星球”。火星有两颗小卫星，是人类深空探测的重要目标。' },
-  { keys: [/木星是什么|木星属于/], ans: '木星是太阳系最大的行星，属于气态巨行星。它拥有众多卫星，其中最大的四颗被称为伽利略卫星。' },
-  { keys: [/银河是什么|银河系/], ans: '银河系是太阳所在的星系，由数千亿颗恒星、星云、暗物质等组成，直径约 10 万光年。' },
-  { keys: [/光年是什么|什么是光年/], ans: '光年是光在真空中一年内传播的距离，约等于 9.46 万亿公里。它是天文学中常用的距离单位，不是时间单位。' },
-  { keys: [/黑洞是什么|什么是黑洞/], ans: '黑洞是引力极强、光都无法逃脱的天体。它通常由大质量恒星塌缩形成，周围存在事件视界。' },
-  { keys: [/彩虹是什么|什么是彩虹/], ans: '彩虹是阳光穿过空气中的水滴时，发生折射、反射和色散而形成的光学现象，通常呈现红、橙、黄、绿、蓝、靛、紫七种颜色。' },
-
-  // 化学与生物
-  { keys: [/水是|水是什么|水的化学式/], ans: '水是由氢和氧组成的化合物，化学式是 H₂O。它在常温常压下是无色透明的液体，是生命必需的物质。' },
-  { keys: [/氧气|氧是什么|氧气的化学式/], ans: '氧气是氧元素组成的气体，化学式为 O₂。它是大多数生物呼吸所必需的气体，在空气中约占21%。' },
-  { keys: [/二氧化碳|CO2|co2/], ans: '二氧化碳（CO₂）是由一个碳原子和两个氧原子组成的气体。它是温室气体之一，植物光合作用需要它，人类和动物呼出它。' },
-  { keys: [/氢气|氢是什么|氢气的化学式/], ans: '氢气是氢元素组成的气体，化学式为 H₂。它是宇宙中最丰富的元素，也是清洁能源的重要候选。' },
-  { keys: [/DNA是什么|什么是DNA/], ans: 'DNA（脱氧核糖核酸）是携带生物遗传信息的分子，呈双螺旋结构。它由四种碱基（A、T、C、G）组成，决定生物的遗传特征。' },
-  { keys: [/蛋白质是什么|什么是蛋白质/], ans: '蛋白质是由氨基酸组成的大分子，是生命活动的主要承担者。它参与构成细胞结构、催化生化反应、免疫防御等多种功能。' },
-  { keys: [/维生素是什么|什么是维生素/], ans: '维生素是人体必需的微量有机物质，虽然需要量很少，但对维持正常生理功能非常重要。例如维生素 C 有助于增强免疫力，维生素 D 有助于钙吸收。' },
-
-  // 历史人文
-  { keys: [/秦始皇是谁|秦始皇/], ans: '秦始皇（嬴政）是中国历史上第一位皇帝，公元前 221 年统一六国，建立秦朝。他推行郡县制、统一文字、货币、度量衡，修筑长城。' },
-  { keys: [/孔子是谁|孔子/], ans: '孔子（公元前 551 年—前 479 年）是中国春秋时期思想家、教育家，儒家学派创始人。他的思想对中国和世界文化影响深远。' },
-  { keys: [/李白是谁|李白/], ans: '李白（701 年—762 年）是唐代著名诗人，被称为“诗仙”。他的诗风豪放飘逸，代表作有《静夜思》《将进酒》《望庐山瀑布》等。' },
-  { keys: [/杜甫是谁|杜甫/], ans: '杜甫（712 年—770 年）是唐代著名诗人，被称为“诗圣”。他的诗反映社会现实，被称为“诗史”，代表作有“三吏”“三别”等。' },
-  { keys: [/四大发明|中国古代四大发明/], ans: '中国古代四大发明是：造纸术、印刷术、火药、指南针。它们对世界文明发展产生了深远影响。' },
-  { keys: [/长城是什么|万里长城/], ans: '长城是中国古代的军事防御工程，总长度超过 2 万公里。它始建于西周，秦、汉、明等朝代都进行过大规模修筑，是世界文化遗产。' },
-  { keys: [/故宫是什么|紫禁城/], ans: '故宫又称紫禁城，位于北京市中心，是明清两代的皇家宫殿。它是世界上现存规模最大、保存最完整的木质结构古建筑群。' },
-  { keys: [/丝绸之路是什么|什么是丝绸之路/], ans: '丝绸之路是古代连接中国与中亚、西亚、欧洲的贸易通道，因丝绸贸易而得名。它促进了东西方经济、文化和技术的交流。' },
-
-  // 生活常识
-  { keys: [/为什么天是蓝的|天空为什么是蓝色/], ans: '天空呈现蓝色是因为大气分子对太阳光中的蓝光散射更强。太阳光中蓝光波长较短，容易被空气分子散射到各个方向，因此我们从地面看天空是蓝色的。' },
-  { keys: [/为什么海水是咸的|海水为什么是咸的/], ans: '海水咸是因为陆地上的岩石和土壤中的盐分，经过雨水冲刷流入河流，最终汇入海洋。水分蒸发后盐分留下，长期积累使海水变咸。' },
-  { keys: [/为什么有四季|四季是怎么形成的/], ans: '四季形成是因为地球自转轴倾斜约 23.5 度，地球绕太阳公转时，不同地区接受太阳光照的角度和时间不同，从而形成春夏秋冬四季。' },
-  { keys: [/为什么会下雨|雨是怎么形成的/], ans: '下雨是因为地表水蒸发成水蒸气上升到空中，遇冷凝结成小水滴或冰晶，形成云。当水滴足够大、空气托不住时，就会降落到地面形成雨。' },
-  { keys: [/为什么月亮会圆缺|月相变化/], ans: '月亮的圆缺是因为月球绕地球公转时，太阳照射月球的方向不断变化。我们从地球上看到的被照亮部分随之变化，形成新月、上弦月、满月、下弦月等月相。' },
-  { keys: [/为什么人会做梦|做梦是什么原因/], ans: '做梦通常发生在快速眼动睡眠阶段。科学家认为，做梦可能与大脑整理记忆、处理情绪、巩固学习有关，但具体机制仍在研究中。' },
-  { keys: [/为什么冰会浮在水上|冰为什么浮在水面/], ans: '冰能浮在水上是因为水在结冰时体积膨胀、密度变小。冰的密度约为 0.92 g/cm³，小于液态水的 1 g/cm³，所以冰会浮在水面。' },
-
-  // 健康与饮食
-  { keys: [/感冒是什么|什么是感冒/], ans: '感冒是由病毒感染引起的上呼吸道疾病，常见症状有鼻塞、流涕、咽痛、咳嗽、发热等。普通感冒一般 7 天左右可自愈，注意多休息、多喝水。' },
-  { keys: [/发烧怎么办|发热怎么办/], ans: '发烧时应多休息、多喝水，可以用温水擦拭身体物理降温。体温超过 38.5°C 且明显不适时，可在医生指导下服用退烧药。如持续高热或伴有严重症状，请及时就医。' },
-  { keys: [/维生素C|维C/], ans: '维生素 C 是一种水溶性维生素，具有抗氧化作用，有助于增强免疫力、促进铁吸收。富含维生素 C 的食物有柑橘、猕猴桃、草莓、青椒等。' },
-  { keys: [/糖尿病是什么|什么是糖尿病/], ans: '糖尿病是一种慢性代谢性疾病，主要特征是血糖长期高于正常水平。常见类型有 1 型糖尿病和 2 型糖尿病。控制饮食、规律运动、遵医嘱用药是管理糖尿病的关键。' },
-  { keys: [/高血压是什么|什么是高血压/], ans: '高血压是指动脉血压持续升高。正常血压一般低于 120/80 mmHg。长期高血压会增加心脑血管疾病风险，需要低盐饮食、控制体重、规律作息和遵医嘱治疗。' },
-
-  // 计算机与互联网
-  { keys: [/什么是Python|Python是什么/], ans: 'Python 是一种高级编程语言，语法简洁、功能强大，广泛应用于数据分析、人工智能、Web 开发、自动化运维等领域。' },
-  { keys: [/什么是JavaScript|JavaScript是什么/], ans: 'JavaScript 是一种主要用于网页开发的脚本语言，可以在浏览器中运行，实现动态交互效果。它也可以用于服务器端开发（Node.js）。' },
-  { keys: [/什么是HTML|HTML是什么/], ans: 'HTML（超文本标记语言）是构建网页的基础语言，用来描述网页的结构和内容。它通过标签定义标题、段落、图片、链接等元素。' },
-  { keys: [/什么是CSS|CSS是什么/], ans: 'CSS（层叠样式表）用于控制网页的外观和布局，包括颜色、字体、边距、定位、动画等。它与 HTML 配合，使网页更加美观。' },
-  { keys: [/什么是数据库|数据库是什么/], ans: '数据库是按照数据结构组织、存储和管理数据的系统。常见的关系型数据库有 MySQL、PostgreSQL，非关系型数据库有 MongoDB、Redis。' },
-  { keys: [/什么是API|API是什么/], ans: 'API（应用程序编程接口）是不同软件系统之间交互的接口。通过 API，开发者可以调用其他系统提供的功能或数据，而无需了解其内部实现。' },
-
-  // 时间与历法
-  { keys: [/一年有多少天|一年几天/], ans: '平年有 365 天，闰年有 366 天。闰年规则：能被 4 整除但不能被 100 整除，或者能被 400 整除的年份。' },
-  { keys: [/一天有多少小时|一天几小时/], ans: '一天有 24 小时，一小时有 60 分钟，一分钟有 60 秒。' },
-  { keys: [/闰年是什么|什么是闰年/], ans: '闰年是为了弥补因人为历法规定造成的年度天数与地球实际公转周期的时间差而设立的。闰年有 366 天，2 月有 29 天。' },
-
-  // 其他常识
-  { keys: [/世界上最高的山|珠穆朗玛峰/], ans: '世界上最高的山峰是珠穆朗玛峰，海拔约 8848.86 米，位于中国与尼泊尔边境。' },
-  { keys: [/世界上最长的河|尼罗河|亚马逊河/], ans: '尼罗河通常被认为是世界上最长的河流，全长约 6650 公里；亚马逊河则是世界上流量最大、流域面积最广的河流。' },
-  { keys: [/中国人口|中国有多少人口/], ans: '中国是世界上人口最多的国家之一，人口超过 14 亿（具体数字以国家统计局最新公布为准）。' },
-  { keys: [/世界上最大的洋|太平洋/], ans: '太平洋是世界上最大、最深的海洋，面积约占地球海洋面积的一半。' },
-  { keys: [/七大洲|世界有几大洲/], ans: '世界有七大洲：亚洲、非洲、北美洲、南美洲、南极洲、欧洲、大洋洲。' },
-  { keys: [/四大洋|世界有几大洋/], ans: '世界有四大洋：太平洋、大西洋、印度洋、北冰洋。' }
+  { keys: [/哈利猫|harrycat/], ans: 'CHUNXI 哈利猫是由 CHUNXI 科技团队与春熙医疗团队联合开发的智能 AI 助手，可以聊天、写代码、生成图片和视频。' }
 ];
 
 function findDirectAnswer(t) {
@@ -2935,11 +2801,83 @@ function generateCodeResponse(userMsg) {
   return { role: 'ai', text: `收到！你正在使用 **Code** 模型 🐱\n\n你问的是："${escapeHtml(t)}"\n\n这里有一段示例代码供你参考：\n\n\`\`\`javascript\n// CHUNXI 哈利猫的代码生成示例\nfunction greet(name) {\n  return '你好，' + name + '！我是 CHUNXI 哈利猫 🐱';\n}\n\nconsole.log(greet('开发者'));\n\`\`\`\n\n**Code 模型最擅长**：\n- 🐍 Python 数据处理\n- 🌐 Web 全栈开发\n- 📱 移动端开发\n- 🗄️ SQL 与数据库\n- 🤖 算法与数据结构\n- 🔧 调试与重构\n\n试试问我："写一个 React 计数器组件" 或 "用 SQL 查最近 7 天的订单" ✨` };
 }
 
+const DEFAULT_NEGATIVE_PROMPT = 'blurry, low quality, deformed, distorted, ugly, bad anatomy, extra limbs, watermark, signature, text, cropped, worst quality';
+
+const IMAGE_KEYWORDS = [
+  { zh: /猫|小猫|猫咪|kitty/, en: 'cat, kitten, feline' },
+  { zh: /狗|小狗|狗狗/, en: 'dog, puppy' },
+  { zh: /兔子|小兔/, en: 'rabbit, bunny' },
+  { zh: /熊猫/, en: 'panda' },
+  { zh: /熊/, en: 'bear' },
+  { zh: /马/, en: 'horse' },
+  { zh: /鸟/, en: 'bird' },
+  { zh: /鱼/, en: 'fish' },
+  { zh: /蝴蝶/, en: 'butterfly' },
+  { zh: /龙/, en: 'dragon' },
+  { zh: /机器人/, en: 'robot' },
+  { zh: /红帽子|红色的帽子/, en: 'red hat' },
+  { zh: /帽子/, en: 'hat' },
+  { zh: /窗台/, en: 'windowsill' },
+  { zh: /窗户|窗口/, en: 'window' },
+  { zh: /花/, en: 'flower' },
+  { zh: /树|树木/, en: 'tree' },
+  { zh: /森林/, en: 'forest' },
+  { zh: /天空/, en: 'sky' },
+  { zh: /云/, en: 'cloud' },
+  { zh: /山/, en: 'mountain' },
+  { zh: /海|海洋/, en: 'ocean, sea' },
+  { zh: /日落|夕阳/, en: 'sunset' },
+  { zh: /日出/, en: 'sunrise' },
+  { zh: /女孩|女生/, en: 'girl' },
+  { zh: /男孩|男生/, en: 'boy' },
+  { zh: /汽车|车/, en: 'car' },
+  { zh: /房子|房屋/, en: 'house' },
+  { zh: /城堡/, en: 'castle' },
+  { zh: /城市/, en: 'city' },
+  { zh: /雨|下雨/, en: 'rain' },
+  { zh: /雪|下雪/, en: 'snow' },
+  { zh: /火|火焰/, en: 'fire, flames' },
+  { zh: /星星|星空/, en: 'stars, night sky' },
+  { zh: /月亮|月球/, en: 'moon' },
+  { zh: /太阳/, en: 'sun' },
+  { zh: /蛋糕/, en: 'cake' },
+  { zh: /咖啡/, en: 'coffee' },
+  { zh: /风景/, en: 'landscape' },
+  { zh: /肖像|头像/, en: 'portrait' },
+  { zh: /动漫|卡通|二次元/, en: 'anime, cartoon' },
+  { zh: /写实|真实/, en: 'photorealistic' },
+  { zh: /油画/, en: 'oil painting' },
+  { zh: /水彩/, en: 'watercolor' },
+  { zh: /素描/, en: 'sketch' },
+  { zh: /3D|三维/, en: '3d render' },
+  { zh: /像素/, en: 'pixel art' }
+];
+
+function expandImagePrompt(userPrompt) {
+  const base = (userPrompt || 'a cute cat').trim();
+  const qualitySuffix = ', highly detailed, 8k, masterpiece, best quality, sharp focus, professional lighting';
+  // 纯英文直接增强
+  if (/^[\x00-\x7F\s]+$/.test(base)) return base + qualitySuffix;
+
+  const added = new Set();
+  const extras = [];
+  for (const item of IMAGE_KEYWORDS) {
+    if (item.zh.test(base) && !added.has(item.en)) {
+      added.add(item.en);
+      extras.push(item.en);
+    }
+  }
+  const extraPart = extras.length ? ', ' + extras.join(', ') : '';
+  return base + extraPart + qualitySuffix;
+}
+
 async function generateImageResponse(userMsg) {
   const prompt = userMsg.text || '梦幻小猫';
+  const enhanced = expandImagePrompt(prompt);
   const seed = Math.floor(Math.random() * 1000000);
-  const encodedPrompt = encodeURIComponent(prompt);
-  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&seed=${seed}&nologo=true`;
+  const encodedPrompt = encodeURIComponent(enhanced);
+  const encodedNegative = encodeURIComponent(DEFAULT_NEGATIVE_PROMPT);
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=768&height=768&seed=${seed}&nologo=true&negative_prompt=${encodedNegative}`;
   return {
     role: 'ai',
     type: 'image',
@@ -3054,16 +2992,28 @@ async function generateVideoResponse(userMsg) {
   }
 }
 
+function detectVideoEffect(prompt) {
+  const p = prompt.toLowerCase();
+  if (/雨|下雨|rain|暴雨/.test(p)) return 'rain';
+  if (/雪|下雪|snow|雪花|暴风雪/.test(p)) return 'snow';
+  if (/火|火焰|火花|fire|flame|spark|burning/.test(p)) return 'fire';
+  if (/海|海洋|水|浪|波|河|湖|ocean|sea|water|wave|river|lake/.test(p)) return 'water';
+  if (/星|星空|银河|夜空|space|star|galaxy|night\s*sky/.test(p)) return 'stars';
+  return 'particles';
+}
+
 async function createCanvasVideo(prompt) {
   const width = 512;
   const height = 512;
   const duration = 5000; // 5 秒
   const fps = 30;
 
-  // 1) 根据提示词生成图片
+  // 1) 用增强提示词生成高质量图片
   const seed = Math.floor(Math.random() * 1000000);
-  const encodedPrompt = encodeURIComponent(prompt);
-  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+  const enhanced = await translateImagePrompt(prompt);
+  const encodedPrompt = encodeURIComponent(enhanced);
+  const encodedNegative = encodeURIComponent(DEFAULT_NEGATIVE_PROMPT);
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=768&height=768&seed=${seed}&nologo=true&negative_prompt=${encodedNegative}`;
 
   const img = new Image();
   img.crossOrigin = 'anonymous';
@@ -3121,49 +3071,121 @@ async function createCanvasVideo(prompt) {
 
   mediaRecorder.start(200);
 
-  // 4) 动画循环：Ken Burns 缩放平移 + 轻微粒子效果
+  // 4) 根据提示词选择动态效果
+  const effect = detectVideoEffect(prompt);
+  const stars = effect === 'stars' ? Array.from({ length: 80 }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    size: Math.random() * 1.5 + 0.5,
+    phase: Math.random() * Math.PI * 2
+  })) : [];
+
+  const drops = (effect === 'rain' || effect === 'snow' || effect === 'fire')
+    ? Array.from({ length: effect === 'fire' ? 60 : 120 }, (_, i) => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        speed: (Math.random() * 0.6 + 0.4) * (effect === 'fire' ? -1 : 1),
+        len: Math.random() * (effect === 'rain' ? 25 : 4) + (effect === 'rain' ? 10 : 2),
+        size: Math.random() * 2 + 1
+      }))
+    : [];
+
+  // 5) 动画循环：Ken Burns + 提示词相关特效
   const startTime = performance.now();
   let rafId;
-  let lastFrameTime = startTime;
 
-  function drawFrame() {
-    const now = performance.now();
-    const elapsed = now - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-
+  function drawBase(progress) {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
 
-    const scale = 1 + progress * 0.15;
-    const panX = Math.sin(progress * Math.PI * 2) * 20;
-    const panY = Math.cos(progress * Math.PI * 2) * 12;
+    const scale = 1 + progress * 0.12;
+    const panX = Math.sin(progress * Math.PI * 2) * 16;
+    const panY = Math.cos(progress * Math.PI * 2) * 10;
     const dw = width * scale;
     const dh = height * scale;
     const dx = (width - dw) / 2 + panX;
     const dy = (height - dh) / 2 + panY;
 
     ctx.drawImage(img, dx, dy, dw, dh);
+  }
 
-    // 轻微飘动粒子
-    const particleCount = 20;
-    for (let i = 0; i < particleCount; i++) {
-      const t = (progress + i / particleCount) % 1;
-      const px = (i * 37 + t * width) % width;
-      const py = (i * 23 + t * height * 0.7) % height;
-      const size = 1 + (i % 3);
-      ctx.fillStyle = `rgba(255,255,255,${0.08 + (i % 5) * 0.02})`;
-      ctx.beginPath();
-      ctx.arc(px, py, size, 0, Math.PI * 2);
-      ctx.fill();
+  function drawFrame() {
+    const now = performance.now();
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    drawBase(progress);
+
+    if (effect === 'water') {
+      // 水面波浪：用半透明波纹条覆盖
+      ctx.save();
+      ctx.globalCompositeOperation = 'overlay';
+      for (let y = 0; y < height; y += 4) {
+        const offset = Math.sin(y * 0.02 + progress * Math.PI * 4) * 6;
+        ctx.fillStyle = `rgba(100,180,255,${0.03 + Math.sin(progress * Math.PI * 3 + y * 0.01) * 0.02})`;
+        ctx.fillRect(offset, y, width, 2);
+      }
+      ctx.restore();
+    } else if (effect === 'rain') {
+      ctx.strokeStyle = 'rgba(180,200,255,0.35)';
+      ctx.lineWidth = 1;
+      for (const d of drops) {
+        d.y += d.speed * 12;
+        d.x += 1.5;
+        if (d.y > height) { d.y = -d.len; d.x = Math.random() * width; }
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - 2, d.y + d.len);
+        ctx.stroke();
+      }
+    } else if (effect === 'snow') {
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      for (const d of drops) {
+        d.y += d.speed * 2;
+        d.x += Math.sin(progress * Math.PI * 4 + d.y * 0.01) * 0.8;
+        if (d.y > height) { d.y = -5; d.x = Math.random() * width; }
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (effect === 'fire') {
+      for (const d of drops) {
+        d.y += d.speed * (3 + Math.random() * 2);
+        d.x += (Math.random() - 0.5) * 1.5;
+        if (d.y < -20) { d.y = height + 10; d.x = Math.random() * width; }
+        const alpha = Math.min(1, (height - d.y) / height * 0.8);
+        ctx.fillStyle = `rgba(255,${120 + Math.random() * 80},0,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (effect === 'stars') {
+      for (const s of stars) {
+        const twinkle = 0.4 + 0.6 * Math.sin(progress * Math.PI * 6 + s.phase);
+        ctx.fillStyle = `rgba(255,255,255,${twinkle})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      // 默认轻粒子
+      const particleCount = 24;
+      for (let i = 0; i < particleCount; i++) {
+        const t = (progress + i / particleCount) % 1;
+        const px = (i * 37 + t * width) % width;
+        const py = (i * 23 + t * height * 0.7) % height;
+        const size = 1 + (i % 3);
+        ctx.fillStyle = `rgba(255,255,255,${0.08 + (i % 5) * 0.02})`;
+        ctx.beginPath();
+        ctx.arc(px, py, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
-
-    lastFrameTime = now;
 
     if (elapsed < duration) {
       rafId = requestAnimationFrame(drawFrame);
     } else {
       cancelAnimationFrame(rafId);
-      // 多录几帧确保收尾
       setTimeout(() => {
         mediaRecorder.requestData();
         setTimeout(() => mediaRecorder.stop(), 100);
