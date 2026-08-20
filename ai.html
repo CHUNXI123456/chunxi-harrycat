@@ -839,6 +839,10 @@
           <span class="lb-icon">🔑</span>
           <span id="loginBtnText">登录</span>
         </button>
+        <div style="text-align:center; margin-top:8px; font-size:12px; color:var(--text-2);">
+          默认管理员：admin / chunxi888
+          <button type="button" class="login-toggle" id="resetAdminBtn" style="margin-left:6px;">忘记密码？</button>
+        </div>
       </div>
     </div>
 
@@ -1834,6 +1838,14 @@ $('loginPasswordInput').addEventListener('keydown', (e) => {
 });
 $('danzaiRegBtn').addEventListener('click', handleDanzaiRegister);
 $('emailRegBtn').addEventListener('click', handleEmailRegister);
+$('resetAdminBtn').addEventListener('click', () => {
+  if (confirm('确定重置所有账号？重置后可用 admin / chunxi888 登录。')) {
+    localStorage.removeItem('chunxi_users');
+    localStorage.removeItem('chunxi_logged_in');
+    localStorage.removeItem('chunxi_login_username');
+    location.reload();
+  }
+});
 
 // Auto-login if previously logged in
 window.addEventListener('load', () => {
