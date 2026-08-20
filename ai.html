@@ -1357,8 +1357,29 @@ async function callPollinationsAI(messages, searchContext) {
     return content;
   } catch(e) {
     clearTimeout(timeout);
+    // 如果 POST /openai 失败，尝试 Pollinations 的 GET 简单接口（有些网络环境下该接口可用）
+    try {
+      const simplePrompt = buildSimplePrompt(apiMessages);
+      const simpleResp = await fetchWithTimeout(
+        `https://text.pollinations.ai/${encodeURIComponent(simplePrompt)}?model=openai&seed=${Math.floor(Math.random()*100000)}`,
+        8000
+      );
+      if (!simpleResp.ok) throw new Error('simple API error ' + simpleResp.status);
+      const text = await simpleResp.text();
+      if (text && text.trim()) return text.trim();
+    } catch(e2) {}
     throw e;
   }
+}
+
+function buildSimplePrompt(messages) {
+  let prompt = '';
+  for (const m of messages) {
+    const roleLabel = m.role === 'system' ? '系统' : (m.role === 'assistant' ? 'AI' : '用户');
+    prompt += `${roleLabel}：${m.content}\n`;
+  }
+  prompt += 'AI：';
+  return prompt;
 }
 
 /* ============== Web search helpers ============== */
@@ -3029,6 +3050,18 @@ function expandImagePrompt(userPrompt) {
       extras.push(item.en);
     }
   }
+
+  // 如果是简单物体（猫、狗、大象等）且原句很短，直接用英文重构，模型更听话
+  const simpleObjects = ['cat', 'dog', 'puppy', 'rabbit', 'bunny', 'panda', 'bear', 'elephant', 'horse', 'bird', 'fish', 'butterfly'];
+  const hasSimpleObject = extras.some(e => simpleObjects.some(obj => e.includes(obj)));
+  if (hasSimpleObject && base.length <= 10) {
+    const styleWords = extras.filter(e => !simpleObjects.some(obj => e.includes(obj))).join(', ');
+    const objectWords = extras.filter(e => simpleObjects.some(obj => e.includes(obj))).join(', ');
+    let englishPrompt = `a cute ${objectWords}`;
+    if (styleWords) englishPrompt += `, ${styleWords}`;
+    return englishPrompt + qualitySuffix;
+  }
+
   const extraPart = extras.length ? ', ' + extras.join(', ') : '';
   return base + extraPart + qualitySuffix;
 }
