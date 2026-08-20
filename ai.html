@@ -1388,67 +1388,73 @@ async function fetchWithTimeout(url, ms = 6000) {
 
 async function searchWeb(query) {
   const encoded = encodeURIComponent(query);
-  const results = [];
 
-  // 1) DuckDuckGo Instant Answer（官方、免 key、支持 CORS）
-  try {
-    const resp = await fetchWithTimeout(`https://api.duckduckgo.com/?q=${encoded}&format=json&no_html=1&skip_disambig=1`, 6000);
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.AbstractText) {
-        results.push({ title: data.Heading || query, snippet: data.AbstractText, url: data.AbstractURL || '' });
-      }
-      if (Array.isArray(data.RelatedTopics)) {
-        for (const topic of data.RelatedTopics.slice(0, 3)) {
-          if (topic.Text) {
-            results.push({ title: topic.FirstURL || query, snippet: topic.Text, url: topic.FirstURL || '' });
-          }
+  async function searchDuckDuckGo() {
+    const resp = await fetchWithTimeout(`https://api.duckduckgo.com/?q=${encoded}&format=json&no_html=1&skip_disambig=1`, 4000);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const results = [];
+    if (data.AbstractText) {
+      results.push({ title: data.Heading || query, snippet: data.AbstractText, url: data.AbstractURL || '' });
+    }
+    if (Array.isArray(data.RelatedTopics)) {
+      for (const topic of data.RelatedTopics.slice(0, 3)) {
+        if (topic.Text) {
+          results.push({ title: topic.FirstURL || query, snippet: topic.Text, url: topic.FirstURL || '' });
         }
       }
-      if (results.length) return results;
     }
-  } catch (e) {}
-
-  // 2) 维基百科（中文，CORS 友好）
-  try {
-    const resp = await fetchWithTimeout(`https://zh.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encoded}&format=json&origin=*`, 6000);
-    if (resp.ok) {
-      const data = await resp.json();
-      const items = data.query && data.query.search;
-      if (Array.isArray(items) && items.length) {
-        return items.slice(0, 3).map(item => ({
-          title: item.title,
-          snippet: (item.snippet || '').replace(/<[^>]+>/g, ''),
-          url: `https://zh.wikipedia.org/wiki/${encodeURIComponent(item.title)}`
-        }));
-      }
-    }
-  } catch (e) {}
-
-  // 3) SearXNG 公共实例（聚合多个引擎，可能包含百度）
-  const searxInstances = [
-    'https://searx.be',
-    'https://searx.tiekoetter.com',
-    'https://search.sapti.me',
-    'https://searx.prvcy.eu'
-  ];
-  for (const instance of searxInstances) {
-    try {
-      const resp = await fetchWithTimeout(`${instance}/search?q=${encoded}&format=json&language=zh-CN`, 8000);
-      if (resp.ok) {
-        const data = await resp.json();
-        if (Array.isArray(data.results) && data.results.length) {
-          return data.results.slice(0, 3).map(r => ({
-            title: r.title || '',
-            snippet: r.content || r.snippet || '',
-            url: r.url || ''
-          }));
-        }
-      }
-    } catch (e) {}
+    return results.length ? results : null;
   }
 
-  return null;
+  async function searchWikipedia() {
+    const resp = await fetchWithTimeout(`https://zh.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encoded}&format=json&origin=*`, 4000);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const items = data.query && data.query.search;
+    if (!Array.isArray(items) || !items.length) return null;
+    return items.slice(0, 3).map(item => ({
+      title: item.title,
+      snippet: (item.snippet || '').replace(/<[^>]+>/g, ''),
+      url: `https://zh.wikipedia.org/wiki/${encodeURIComponent(item.title)}`
+    }));
+  }
+
+  async function searchSearx() {
+    const searxInstances = [
+      'https://searx.be',
+      'https://searx.tiekoetter.com',
+      'https://search.sapti.me',
+      'https://searx.prvcy.eu'
+    ];
+    for (const instance of searxInstances) {
+      try {
+        const resp = await fetchWithTimeout(`${instance}/search?q=${encoded}&format=json&language=zh-CN`, 4000);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (Array.isArray(data.results) && data.results.length) {
+            return data.results.slice(0, 3).map(r => ({
+              title: r.title || '',
+              snippet: r.content || r.snippet || '',
+              url: r.url || ''
+            }));
+          }
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  // 三个源并行搜索，整体最多等 5 秒，有一个成功就返回
+  const overallTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('search timeout')), 5000));
+  try {
+    return await Promise.race([
+      Promise.any([searchDuckDuckGo(), searchWikipedia(), searchSearx()]).then(r => r || null),
+      overallTimeout
+    ]);
+  } catch (e) {
+    return null;
+  }
 }
 
 function formatSearchContext(query, results) {
@@ -2512,8 +2518,15 @@ async function buildAIResponse(userMsg) {
         const apiText = await callPollinationsAI(getCurrentMessages(), searchContext);
         aiResponse = { role: 'ai', text: apiText };
       } catch(e) {
-        await new Promise(r => setTimeout(r, 400));
-        aiResponse = generateChatResponse(userMsg);
+        // 搜索失败可能导致整体超时，尝试不用搜索再调一次 API
+        try {
+          setTypingText('正在思考…');
+          const apiText = await callPollinationsAI(getCurrentMessages());
+          aiResponse = { role: 'ai', text: apiText };
+        } catch(e2) {
+          await new Promise(r => setTimeout(r, 400));
+          aiResponse = generateChatResponse(userMsg);
+        }
       }
     }
   }
@@ -2857,6 +2870,28 @@ function solveEquation(t) {
   return `解方程 **${left} = ${right}**：\n\n移项整理得：${a}x + (${b}) = 0\n解得：**x = ${x}**`;
 }
 
+function getLocalDateTimeAnswer(t) {
+  const tl = t.toLowerCase();
+  const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  const now = new Date();
+
+  if (/今天星期几|今天周几|今天是星期几|今天是周几/.test(t)) {
+    return `今天是 **${weekdays[now.getDay()]}**。`;
+  }
+  if (/今天几号|今天日期|今天是几号|今天是.*号/.test(t)) {
+    return `今天是 **${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日**。`;
+  }
+  if (/现在几点|现在时间|当前时间|几点了/.test(t)) {
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    return `现在是 **${h}:${m}**（设备本地时间）。`;
+  }
+  if (/今天.*几月几号|今天.*年月日/.test(t)) {
+    return `今天是 **${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日，${weekdays[now.getDay()]}**。`;
+  }
+  return null;
+}
+
 function tryDirectAnswer(userMsg) {
   const t = userMsg.text || '';
   const tl = t.toLowerCase();
@@ -2864,6 +2899,10 @@ function tryDirectAnswer(userMsg) {
   if (/你好|hi|hello|嗨|hey/.test(tl)) {
     return { role: 'ai', text: `你好呀！很高兴见到你～今天想聊点什么？` };
   }
+
+  // 本地日期时间（不依赖网络）
+  const timeAns = getLocalDateTimeAnswer(t);
+  if (timeAns) return { role: 'ai', text: timeAns };
 
   // 优先命中直接知识库答案
   const direct = findDirectAnswer(t);
@@ -2897,8 +2936,9 @@ function generateChatResponse(userMsg) {
   const direct = tryDirectAnswer(userMsg);
   if (direct) return direct;
 
-  // 离线兜底：坦诚说明无法回答，而不是假装知道
-  return { role: 'ai', text: `抱歉，关于“${escapeHtml(t)}”我暂时无法给出准确回答。\n\n可能的原因：\n1. 当前未连接到 AI 服务，无法获取最新信息\n2. 这个问题超出了我的知识范围\n\n你可以：\n- 检查网络后重试\n- 换个更具体的方式提问\n- 联系管理员获取更多帮助` };
+  // 离线兜底：提示网络问题并给出一个可点击的搜索链接
+  const searchUrl = 'https://www.baidu.com/s?wd=' + encodeURIComponent(t);
+  return { role: 'ai', text: `我暂时连不上 AI 服务，无法即时回答“${escapeHtml(t)}”。\n\n你可以：\n- 检查网络后重试\n- [去百度搜索一下](${searchUrl})` };
 }
 
 function generateCodeResponse(userMsg) {
@@ -2924,6 +2964,7 @@ const IMAGE_KEYWORDS = [
   { zh: /狗|小狗|狗狗/, en: 'dog, puppy' },
   { zh: /兔子|小兔/, en: 'rabbit, bunny' },
   { zh: /熊猫/, en: 'panda' },
+  { zh: /大象/, en: 'elephant' },
   { zh: /熊/, en: 'bear' },
   { zh: /马/, en: 'horse' },
   { zh: /鸟/, en: 'bird' },
@@ -2970,8 +3011,13 @@ const IMAGE_KEYWORDS = [
 ];
 
 function expandImagePrompt(userPrompt) {
-  const base = (userPrompt || 'a cute cat').trim();
+  let base = (userPrompt || 'a cute cat').trim();
   const qualitySuffix = ', highly detailed, 8k, masterpiece, best quality, sharp focus, professional lighting';
+
+  // 去掉常见的“生成 / 画”指令前缀，避免模型误解
+  base = base.replace(/^(帮我|给我|请)?[画生成做一张个幅只张]+[：: ]?/i, '').trim();
+  if (!base) base = 'a cute cat';
+
   // 纯英文直接增强
   if (/^[\x00-\x7F\s]+$/.test(base)) return base + qualitySuffix;
 
