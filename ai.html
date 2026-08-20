@@ -39,6 +39,14 @@
     pointer-events: none; z-index: 0;
   }
 
+  /* 图片 logo 统一适配 */
+  .login-logo img, .brand-avatar img, .conv-icon img,
+  .welcome-msg .av img, .msg .av img, .model-item .mi-icon img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    display: block;
+  }
+  .model-item .mi-icon img { border-radius: 8px; }
+
   /* ============== Login Screen ============== */
   .login-screen {
     position: fixed; inset: 0; z-index: 1000;
@@ -815,7 +823,7 @@
 <!-- ============ Login Screen ============ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <div class="login-logo">🐱</div>
+    <div class="login-logo"><img src="logo.jpg" alt="哈利猫"></div>
     <h1 class="login-title">CHUNXI <span>哈利猫</span></h1>
     <p class="login-subtitle">CHUNXI科技团队 · 春熙医疗团队开发</p>
 
@@ -897,7 +905,7 @@
   <div class="header">
     <div class="header-left">
       <button class="menu-btn" id="menuBtn" title="历史对话">☰</button>
-      <div class="brand-avatar">🐱</div>
+      <div class="brand-avatar"><img src="logo.jpg" alt="哈利猫"></div>
       <div class="brand-text">
         <div class="brand-name">CHUNXI 哈利猫 <small>v1.0</small></div>
         <div class="brand-tagline">CHUNXI科技团队 · 春熙医疗团队开发</div>
@@ -937,7 +945,7 @@
 
       <div class="model-menu" id="modelMenu">
         <div class="model-item active" data-model="harrycat">
-          <div class="mi-icon hc">🐱</div>
+          <div class="mi-icon hc"><img src="logo.jpg" alt=""></div>
           <div class="mi-text">
             <div class="mi-name">HarryCat 1.0</div>
             <div class="mi-desc">默认·全能对话</div>
@@ -1107,9 +1115,12 @@ const state = {
 const ADMIN_EMAIL = 'admin@chunxi.fun';
 const ADMIN_DEFAULT_PASSWORD = 'chunxi888';
 
+// 品牌 Logo：把 logo.jpg 放在与 ai.html 同一目录下即可；如需换图，修改此路径
+const LOGO_URL = 'logo.jpg';
+
 const CONVERSATIONS_KEY = 'chunxi_conversations';
 const LEGACY_CHAT_HISTORY_KEY = 'chunxi_chat_history';
-const POLLINATIONS_SYSTEM = '你是 CHUNXI 哈利猫，一个友好的 AI 助手。请直接、自然地回答用户的问题，不要提及你是演示版、前端演示或mock回复。回答应围绕用户的问题展开，给出有价值的信息。';
+const POLLINATIONS_SYSTEM = '你是 CHUNXI 哈利猫，一个友好的 AI 助手。请诚实、直接地回答用户的问题：知道的就回答，不确定或不知道时要明确说“我不太确定”或“我不知道”，不要编造信息。回答应围绕用户的问题展开，给出有价值的信息，但不要假装知道超出你知识范围的内容。';
 
 function getCurrentUser() {
   return localStorage.getItem('chunxi_login_username') || localStorage.getItem('chunxi_login_email') || '';
@@ -1258,7 +1269,7 @@ function renderDrawerList() {
     const item = document.createElement('div');
     item.className = 'conv-item' + (isActive ? ' active' : '');
     item.innerHTML = `
-      <div class="conv-icon">🐱</div>
+      <div class="conv-icon"><img src="logo.jpg" alt=""></div>
       <div class="conv-info">
         <div class="conv-title">${escapeHtml(conv.title || '新对话')}</div>
         <div class="conv-time">${formatTime(conv.updatedAt || conv.createdAt)} · ${conv.messages ? conv.messages.length : 0} 条消息</div>
@@ -1480,9 +1491,9 @@ function renderWelcomeIntro() {
   const div = document.createElement('div');
   div.className = 'welcome-msg';
   div.innerHTML = `
-    <div class="av">🐱</div>
+    <div class="av"><img src="${LOGO_URL}" alt=""></div>
     <div class="bub">
-      <strong>你好～ 我是哈利猫</strong> 🐱<br>
+      <strong>你好～ 我是哈利猫</strong><br>
       接下来开始我们的聊天起程吧！
     </div>
   `;
@@ -2443,7 +2454,7 @@ function generateMedicalHint(text) {
 function appendMessage(msg, index, skipScroll) {
   const div = document.createElement('div');
   div.className = 'msg ' + msg.role;
-  const av = `<div class="av">${msg.role === 'ai' ? '🐱' : '👤'}</div>`;
+  const av = `<div class="av">${msg.role === 'ai' ? `<img src="${LOGO_URL}" alt="">` : '👤'}</div>`;
   const bub = `<div class="bub">${formatBubble(msg)}</div>`;
   div.innerHTML = av + bub;
 
@@ -2583,7 +2594,7 @@ function showTyping() {
   state.isTyping = true;
   typingEl = document.createElement('div');
   typingEl.className = 'msg ai';
-  typingEl.innerHTML = `<div class="av">🐱</div><div class="bub"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  typingEl.innerHTML = `<div class="av"><img src="${LOGO_URL}" alt=""></div><div class="bub"><div class="typing"><span></span><span></span><span></span></div></div>`;
   chatInner.appendChild(typingEl);
   chat.scrollTop = chat.scrollHeight;
 }
@@ -2900,50 +2911,12 @@ function tryDirectAnswer(userMsg) {
 function generateChatResponse(userMsg) {
   const t = userMsg.text || '';
 
-  // 先尝试直接答案
+  // 先尝试直接答案（问候、数学、方程等已知问题）
   const direct = tryDirectAnswer(userMsg);
   if (direct) return direct;
 
-  // 定义/概念类：尝试给出通用解释
-  if (/^(什么是|什么叫|什么是)\s*/i.test(t)) {
-    const k = extractKeyword(t, ['什么是', '什么叫', '什么是']);
-    if (k) {
-      return { role: 'ai', text: `**${escapeHtml(k)}** 是一种常见的概念、事物或现象。\n\n简单来说，${escapeHtml(k)} 指的是在特定领域中具有特定含义或功能的对象、方法或过程。如果你有更具体的上下文或例子，我可以给出更精确的解释。` };
-    }
-  }
-
-  // 地点/归属类（未命中知识库时）
-  if (/(.+?)\s*(?:属于|在|位于)\s*(?:哪里|哪儿|什么地方)/.test(t)) {
-    const place = RegExp.$1.trim();
-    if (place && place.length < 30) {
-      return { role: 'ai', text: `“${escapeHtml(place)}”是中国的一个省级行政区或直辖市吗？目前我的知识库中还没有关于它的详细信息。你可以补充更多背景，我会尽力帮你确认。` };
-    }
-  }
-
-  // 比较类
-  if (/(.+?)\s*(?:和|与)\s*(.+?)\s*(?:哪个大|哪个更好|有什么区别|有什么不同)/.test(t)) {
-    const a = RegExp.$1.trim();
-    const b = RegExp.$2.trim();
-    return { role: 'ai', text: `“${escapeHtml(a)}”和“${escapeHtml(b)}”的比较取决于具体标准和应用场景。\n\n一般来说，可以从以下几个维度分析：功能、性能、成本、易用性、适用范围。如果你能告诉我你更关注哪一点，我可以给出更有针对性的建议。` };
-  }
-
-  // 原因类
-  if (/^(为什么|为何)\s*/i.test(t)) {
-    return { role: 'ai', text: `“${escapeHtml(t)}”的原因通常涉及多个方面：内在机制、外部环境以及相关因素之间的相互作用。\n\n如果你能提供更多背景信息，比如具体场景或条件，我可以帮你更准确地分析原因。` };
-  }
-
-  // 方法类
-  if (/^(怎么做|如何|怎样)\s*/i.test(t)) {
-    return { role: 'ai', text: `要做到“${escapeHtml(t)}”，一般可以按以下步骤进行：\n\n1. **明确目标**：清楚你想要达成的结果\n2. **收集信息**：了解相关背景、资源和限制\n3. **制定方案**：列出可行步骤并选择最优路径\n4. **执行落实**：按计划逐步实施\n5. **检查调整**：根据反馈不断优化\n\n如果你告诉我具体场景，我可以给出更详细的操作方案。` };
-  }
-
-  // 疑问句默认
-  if (/[?？]$/.test(t)) {
-    return { role: 'ai', text: `关于“${escapeHtml(t)}”，这需要结合具体情况来看。\n\n常见情况下通常有常规答案，但如果涉及特殊条件或背景，可能需要更多信息。你可以补充细节，我会尽力帮你分析。` };
-  }
-
-  // 最终兜底：围绕用户的话回应
-  return { role: 'ai', text: `你提到的是：“${escapeHtml(t)}”。\n\n关于这个问题，我会尽力帮你分析。如果有更多细节或具体背景，请告诉我，我可以给出更准确的回答。` };
+  // 离线兜底：坦诚说明无法回答，而不是假装知道
+  return { role: 'ai', text: `抱歉，关于“${escapeHtml(t)}”我暂时无法给出准确回答。\n\n可能的原因：\n1. 当前未连接到 AI 服务，无法获取最新信息\n2. 这个问题超出了我的知识范围\n\n你可以：\n- 检查网络后重试\n- 换个更具体的方式提问\n- 联系管理员获取更多帮助` };
 }
 
 function generateCodeResponse(userMsg) {
